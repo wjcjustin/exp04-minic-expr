@@ -62,7 +62,7 @@ static bool gFrontEndFlexBison = true;
 ///
 /// @brief 前端分析器Antlr4，是否选中
 ///
-static bool gFrontEndAntlr4 = false;
+static bool gFrontEndAntlr4 = true;
 
 ///
 /// @brief 前端分析器用递归下降分析法，是否选中
@@ -86,25 +86,24 @@ static std::string gInputFile;
 /// @brief 输出文件，不同的选项输出的内容不同
 static std::string gOutputFile;
 
-static struct option long_options[] = {
-    {"help", no_argument, 0, 'h'},
-    {"output", required_argument, 0, 'o'},
-    {"symbol", no_argument, 0, 'S'},
-    {"ast", no_argument, 0, 'T'},
-    {"ir", no_argument, 0, 'I'},
-    {"antlr4", no_argument, 0, 'A'},
-    {"recursive-descent", no_argument, 0, 'D'},
-    {"optimize", required_argument, 0, 'O'},
-    {"target", required_argument, 0, 't'},
-    {"asmir", no_argument, 0, 'c'},
-    {0, 0, 0, 0}
-};
+static struct option long_options[] = {{"help", no_argument, 0, 'h'},
+                                       {"output", required_argument, 0, 'o'},
+                                       {"symbol", no_argument, 0, 'S'},
+                                       {"ast", no_argument, 0, 'T'},
+                                       {"ir", no_argument, 0, 'I'},
+                                       {"antlr4", no_argument, 0, 'A'},
+                                       {"recursive-descent", no_argument, 0, 'D'},
+                                       {"optimize", required_argument, 0, 'O'},
+                                       {"target", required_argument, 0, 't'},
+                                       {"asmir", no_argument, 0, 'c'},
+                                       {0, 0, 0, 0}};
 
 /// @brief 显示帮助
 /// @param exeName
 static void showHelp(const std::string & exeName)
 {
-    std::cout << exeName + " -S [--symbol] [-A | --antlr4 | -D | --recursive-descent] [-T | --ast | -I | --ir] [-o output | --output=output] source\n";
+    std::cout << exeName + " -S [--symbol] [-A | --antlr4 | -D | --recursive-descent] [-T | --ast | -I | --ir] [-o "
+                           "output | --output=output] source\n";
     std::cout << "Options:\n";
     std::cout << "  -h, --help                 Show this help message\n";
     std::cout << "  -o, --output=FILE          Specify output file\n";

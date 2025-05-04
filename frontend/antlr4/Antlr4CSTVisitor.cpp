@@ -299,16 +299,27 @@ std::any MiniCCSTVisitor::visitUnaryExp(MiniCParser::UnaryExpContext * ctx)
 
 std::any MiniCCSTVisitor::visitPrimaryExp(MiniCParser::PrimaryExpContext * ctx)
 {
-    // 识别文法产生式 primaryExp: T_L_PAREN expr T_R_PAREN | T_DIGIT | lVal;
+    // 识别文法产生式 primaryExp: T_L_PAREN expr T_R_PAREN | T_DIGIT | T_OCT_DIGIT | T_HEX_DIGIT | lVal;
 
     ast_node * node = nullptr;
 
     if (ctx->T_DIGIT()) {
         // 无符号整型字面量
         // 识别 primaryExp: T_DIGIT
+        // stoull 函数参数base决定识别时的进制，默认为10
 
         uint32_t val = (uint32_t) stoull(ctx->T_DIGIT()->getText());
         int64_t lineNo = (int64_t) ctx->T_DIGIT()->getSymbol()->getLine();
+        node = ast_node::New(digit_int_attr{val, lineNo});
+    } else if (ctx->T_OCT_DIGIT()) {
+        // 8进制
+        uint32_t val = (uint32_t) stoull(ctx->T_OCT_DIGIT()->getText(), nullptr, 8);
+        int64_t lineNo = (int64_t) ctx->T_OCT_DIGIT()->getSymbol()->getLine();
+        node = ast_node::New(digit_int_attr{val, lineNo});
+    } else if (ctx->T_HEX_DIGIT()) {
+        // 16进制
+        uint32_t val = (uint32_t) stoull(ctx->T_HEX_DIGIT()->getText(), nullptr, 16);
+        int64_t lineNo = (int64_t) ctx->T_HEX_DIGIT()->getSymbol()->getLine();
         node = ast_node::New(digit_int_attr{val, lineNo});
     } else if (ctx->lVal()) {
         // 具有左值的表达式
