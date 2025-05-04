@@ -234,7 +234,7 @@ void Function::setExistFuncCall(bool exist)
     funcCallExist = exist;
 }
 
-/// @brief 新建变量型Value。先检查是否存在，不存在则创建，否则失败
+/// @brief 新建变量型Value。先检查是否存在，不存在则创建，否则失败————用于函数返回值的创建
 /// @param name 变量ID
 /// @param type 变量类型
 /// @param scope_level 局部变量的作用域层级

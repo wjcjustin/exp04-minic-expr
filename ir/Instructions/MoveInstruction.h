@@ -24,7 +24,7 @@
 class Function;
 
 ///
-/// @brief 复制指令
+/// @brief 赋值指令
 ///
 class MoveInstruction : public Instruction {
 

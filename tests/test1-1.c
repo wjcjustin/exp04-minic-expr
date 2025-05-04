@@ -1,10 +1,8 @@
+
 int main()
 {
     int a;
-    int b;
-    int c,d;
-    a = 2;
-    b = 3;
+    a = 072;
 
-    return a + b + 2;
+    return 0x3af + a + 5;
 }

@@ -19,7 +19,7 @@
 #include "VoidType.h"
 
 /// @brief 函数实参指令
-/// @param target 跳转目标
+/// @param src 要传入的参数值
 ArgInstruction::ArgInstruction(Function * _func, Value * src)
     : Instruction(_func, IRInstOperator::IRINST_OP_ARG, VoidType::getType())
 {
