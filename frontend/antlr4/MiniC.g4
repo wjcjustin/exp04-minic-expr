@@ -50,8 +50,14 @@ addExp: unaryExp (addOp unaryExp)*;
 // 加减运算符
 addOp: T_ADD | T_SUB;
 
+// 求负表达式
+negUnaryExp: T_SUB primaryExp;
+
 // 一元表达式
-unaryExp: primaryExp | T_ID T_L_PAREN realParamList? T_R_PAREN;
+unaryExp:
+	primaryExp
+	| T_ID T_L_PAREN realParamList? T_R_PAREN
+	| negUnaryExp;
 
 // 基本表达式：括号表达式、整数、左值表达式
 primaryExp:

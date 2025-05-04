@@ -21,8 +21,8 @@ public:
   enum {
     RuleCompileUnit = 0, RuleFuncDef = 1, RuleBlock = 2, RuleBlockItemList = 3, 
     RuleBlockItem = 4, RuleVarDecl = 5, RuleBasicType = 6, RuleVarDef = 7, 
-    RuleStatement = 8, RuleExpr = 9, RuleAddExp = 10, RuleAddOp = 11, RuleUnaryExp = 12, 
-    RulePrimaryExp = 13, RuleRealParamList = 14, RuleLVal = 15
+    RuleStatement = 8, RuleExpr = 9, RuleAddExp = 10, RuleAddOp = 11, RuleNegUnaryExp = 12, 
+    RuleUnaryExp = 13, RulePrimaryExp = 14, RuleRealParamList = 15, RuleLVal = 16
   };
 
   explicit MiniCParser(antlr4::TokenStream *input);
@@ -54,6 +54,7 @@ public:
   class ExprContext;
   class AddExpContext;
   class AddOpContext;
+  class NegUnaryExpContext;
   class UnaryExpContext;
   class PrimaryExpContext;
   class RealParamListContext;
@@ -280,6 +281,20 @@ public:
 
   AddOpContext* addOp();
 
+  class  NegUnaryExpContext : public antlr4::ParserRuleContext {
+  public:
+    NegUnaryExpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *T_SUB();
+    PrimaryExpContext *primaryExp();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  NegUnaryExpContext* negUnaryExp();
+
   class  UnaryExpContext : public antlr4::ParserRuleContext {
   public:
     UnaryExpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -289,6 +304,7 @@ public:
     antlr4::tree::TerminalNode *T_L_PAREN();
     antlr4::tree::TerminalNode *T_R_PAREN();
     RealParamListContext *realParamList();
+    NegUnaryExpContext *negUnaryExp();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;

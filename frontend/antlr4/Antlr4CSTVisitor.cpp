@@ -15,11 +15,13 @@
 /// </table>
 ///
 
+#include <any>
 #include <string>
 
 #include "Antlr4CSTVisitor.h"
 #include "AST.h"
 #include "AttrType.h"
+#include "MiniCParser.h"
 
 #define Instanceof(res, type, var) auto res = dynamic_cast<type>(var)
 
@@ -269,13 +271,33 @@ std::any MiniCCSTVisitor::visitAddOp(MiniCParser::AddOpContext * ctx)
     }
 }
 
+std::any MiniCCSTVisitor::visitNegUnaryExp(MiniCParser::NegUnaryExpContext * ctx)
+{
+    // 识别的文法产生式：negUnaryExp: T_SUB primaryExp;
+    // 将其转化为0-primaryExp，调用减法来实现
+    ast_node *zero, *right;
+    ast_operator_type sub_op = ast_operator_type::AST_OP_SUB;
+
+    // 提取求负运算的操作数，设为右操作数
+    right = std::any_cast<ast_node *>(visitPrimaryExp(ctx->primaryExp()));
+
+    // 新建左操作数，类型为无符号整形字面量，值为0
+    zero = ast_node::New(digit_int_attr{0});
+
+    // 调用减法运算
+    return ast_node::New(sub_op, zero, right, nullptr);
+}
+
 std::any MiniCCSTVisitor::visitUnaryExp(MiniCParser::UnaryExpContext * ctx)
 {
-    // 识别文法产生式：unaryExp: primaryExp | T_ID T_L_PAREN realParamList? T_R_PAREN;
+    // 识别文法产生式：unaryExp: primaryExp | T_ID T_L_PAREN realParamList? T_R_PAREN | negUnaryExp;
 
     if (ctx->primaryExp()) {
         // 普通表达式
         return visitPrimaryExp(ctx->primaryExp());
+    } else if (ctx->negUnaryExp()) {
+        // 求负表达式
+        return visitNegUnaryExp(ctx->negUnaryExp());
     } else if (ctx->T_ID()) {
 
         // 创建函数调用名终结符节点

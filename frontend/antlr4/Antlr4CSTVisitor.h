@@ -106,6 +106,13 @@ protected:
     std::any visitAddOp(MiniCParser::AddOpContext * ctx) override;
 
     ///
+    /// @brief 非终结符negUnaryExp的分析
+    /// @param ctx CST上下文
+    /// @return std::any AST的节点
+    ///
+    std::any visitNegUnaryExp(MiniCParser::NegUnaryExpContext * ctx) override;
+
+    ///
     /// @brief 非终结符unaryExp的分析
     /// @param ctx CST上下文
     /// @return std::any AST的节点
