@@ -62,7 +62,7 @@ static bool gFrontEndFlexBison = true;
 ///
 /// @brief 前端分析器Antlr4，是否选中
 ///
-static bool gFrontEndAntlr4 = true;
+static bool gFrontEndAntlr4 = false;
 
 ///
 /// @brief 前端分析器用递归下降分析法，是否选中

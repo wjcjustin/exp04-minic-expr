@@ -274,18 +274,17 @@ std::any MiniCCSTVisitor::visitAddOp(MiniCParser::AddOpContext * ctx)
 std::any MiniCCSTVisitor::visitNegUnaryExp(MiniCParser::NegUnaryExpContext * ctx)
 {
     // 识别的文法产生式：negUnaryExp: T_SUB primaryExp;
-    // 将其转化为0-primaryExp，调用减法来实现
-    ast_node *zero, *right;
-    ast_operator_type sub_op = ast_operator_type::AST_OP_SUB;
 
-    // 提取求负运算的操作数，设为右操作数
-    right = std::any_cast<ast_node *>(visitPrimaryExp(ctx->primaryExp()));
+    // 将一元求负运算符的右部分提取出来
+    ast_node * right = std::any_cast<ast_node *>(visitPrimaryExp(ctx->primaryExp()));
 
-    // 新建左操作数，类型为无符号整形字面量，值为0
-    zero = ast_node::New(digit_int_attr{0});
+    // 创建一元求负节点
+    auto neg_unary_node = create_contain_node(ast_operator_type::AST_OP_NEG);
 
-    // 调用减法运算
-    return ast_node::New(sub_op, zero, right, nullptr);
+    // 将右部插入到一元求负节点中
+    neg_unary_node->insert_son_node(right);
+
+    return neg_unary_node;
 }
 
 std::any MiniCCSTVisitor::visitUnaryExp(MiniCParser::UnaryExpContext * ctx)

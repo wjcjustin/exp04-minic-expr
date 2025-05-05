@@ -18,13 +18,13 @@
 #include <cstdio>
 #include <unordered_map>
 #include <vector>
-#include <iostream>
 
 #include "AST.h"
 #include "Common.h"
 #include "Function.h"
 #include "IRCode.h"
 #include "IRGenerator.h"
+#include "IntegerType.h"
 #include "Module.h"
 #include "EntryInstruction.h"
 #include "LabelInstruction.h"
@@ -33,6 +33,7 @@
 #include "BinaryInstruction.h"
 #include "MoveInstruction.h"
 #include "GotoInstruction.h"
+#include "NegUnaryInstruction.h"
 
 /// @brief 构造函数
 /// @param _root AST的根
@@ -44,9 +45,10 @@ IRGenerator::IRGenerator(ast_node * _root, Module * _module) : root(_root), modu
     ast2ir_handlers[ast_operator_type::AST_OP_LEAF_VAR_ID] = &IRGenerator::ir_leaf_node_var_id;
     ast2ir_handlers[ast_operator_type::AST_OP_LEAF_TYPE] = &IRGenerator::ir_leaf_node_type;
 
-    /* 表达式运算， 加减 */
+    /* 表达式运算， 加减、求负 */
     ast2ir_handlers[ast_operator_type::AST_OP_SUB] = &IRGenerator::ir_sub;
     ast2ir_handlers[ast_operator_type::AST_OP_ADD] = &IRGenerator::ir_add;
+    ast2ir_handlers[ast_operator_type::AST_OP_NEG] = &IRGenerator::ir_neg;
 
     /* 语句 */
     ast2ir_handlers[ast_operator_type::AST_OP_ASSIGN] = &IRGenerator::ir_assign;
@@ -447,6 +449,30 @@ bool IRGenerator::ir_sub(ast_node * node)
 
     // 创建临时变量保存IR的值，以及线性IR指令
     node->blockInsts.addInst(left->blockInsts);
+    node->blockInsts.addInst(right->blockInsts);
+    node->blockInsts.addInst(subInst);
+
+    node->val = subInst;
+
+    return true;
+}
+
+/// @brief 一元求负AST节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_neg(ast_node * node)
+{
+    //
+    ast_node * right = ir_visit_ast_node(node->sons[0]);
+    if (!right) {
+        // 求负右部操作数（表达式）没有定值
+        return false;
+    }
+
+    NegUnaryInstruction * subInst =
+        new NegUnaryInstruction(module->getCurrentFunction(), right->val, IntegerType::getTypeInt());
+
+    // 保存右部的IR指令以及求负操作的IR指令
     node->blockInsts.addInst(right->blockInsts);
     node->blockInsts.addInst(subInst);
 

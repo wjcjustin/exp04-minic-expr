@@ -2,7 +2,7 @@
 int main()
 {
     int a;
-    a = -4;
+    a = -(3+5-2);
 
-    return -0x3af + -a - 5;
+    return 0x3af + a - 5;
 }
