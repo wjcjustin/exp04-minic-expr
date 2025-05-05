@@ -1,8 +1,8 @@
-
+int a;
 int main()
 {
-    int a;
-    a = -(3+5-2);
-
-    return 0x3af + a - 5;
+    int a, b;
+    a = 0xff + 5 / 2;
+    b = 3 * 012 - 5;
+    return a + -b % 3 *5 - 2;
 }

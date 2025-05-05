@@ -94,6 +94,15 @@ enum class ast_operator_type : int {
     /// @brief 求负一元运算符-
     AST_OP_NEG,
 
+    /// @brief 二元运算符*
+    AST_OP_MUL,
+
+    /// @brief 二元运算符/
+    AST_OP_DIV,
+
+    /// @brief 二元运算符%
+    AST_OP_MOD,
+
     /// @brief 最大标识符，表示非法运算符
     AST_OP_MAX,
 };

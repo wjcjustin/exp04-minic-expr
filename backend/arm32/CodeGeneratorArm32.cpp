@@ -138,11 +138,11 @@ void CodeGeneratorArm32::genCodeSection(Function * func)
     // 删除无用的Label指令
     iloc.deleteUnusedLabel();
 
-    // ILOC代码输出为汇编代码
-    fprintf(fp, ".align %d\n", func->getAlignment());
-    fprintf(fp, ".global %s\n", func->getName().c_str());
-    fprintf(fp, ".type %s, %%function\n", func->getName().c_str());
-    fprintf(fp, "%s:\n", func->getName().c_str());
+    // ILOC代码输出为汇编代码——————先输出基础信息
+    fprintf(fp, ".align %d\n", func->getAlignment());       // 偏移
+    fprintf(fp, ".global %s\n", func->getName().c_str());   // 全局名称：函数名
+    fprintf(fp, ".type %s, %%function\n", func->getName().c_str()); // 函数返回类型
+    fprintf(fp, "%s:\n", func->getName().c_str());      // 函数开始：
 
     // 开启时输出IR指令作为注释
     if (this->showLinearIR) {
