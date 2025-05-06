@@ -1,4 +1,7 @@
 int main()
 {
-	return 1;
+    int a;
+    a = -1;
+
+    return 257;
 }
