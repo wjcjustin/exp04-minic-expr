@@ -67,7 +67,7 @@ void PlatformArm32::roundLeftShiftTwoBit(unsigned int & num)
     num = (num << 2) | (overFlow >> 30);
 }
 
-/// @brief 判断num是否是常数表达式，8位数字循环右移偶数位得到
+/// @brief 判断num是否是合法的常数表达式，8位数字循环右移偶数位得到（是否能作为arm32的立即数表示）
 /// @param num
 /// @return
 bool PlatformArm32::__constExpr(int num)
@@ -88,7 +88,7 @@ bool PlatformArm32::__constExpr(int num)
     return false;
 }
 
-/// @brief 同时处理正数和负数
+/// @brief 同时处理正数和负数, 判断这个数字是否是合法的常量表达式
 /// @param num
 /// @return
 bool PlatformArm32::constExpr(int num)

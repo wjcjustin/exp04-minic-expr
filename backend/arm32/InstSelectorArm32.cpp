@@ -238,8 +238,9 @@ void InstSelectorArm32::translate_two_operator(Instruction * inst, string operat
 
     // 看arg1是否是寄存器，若是则寄存器寻址，否则要load变量到寄存器中
     if (arg1_reg_no == -1) {
-
+        // 不是寄存器寻址，需要为其分配寄存器
         // 分配一个寄存器r8
+        // ? 貌似并没有指定分配r8，而是直接分配一个空闲寄存器
         load_arg1_reg_no = simpleRegisterAllocator.Allocate(arg1);
 
         // arg1 -> r8，这里可能由于偏移不满足指令的要求，需要额外分配寄存器

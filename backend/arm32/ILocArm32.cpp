@@ -483,7 +483,7 @@ void ILocArm32::store_var(int src_reg_no, Value * dest_var, int tmp_reg_no)
 }
 
 /// @brief 加载栈内变量地址
-/// @param rsReg 结果寄存器号
+/// @param rs_reg_no 结果寄存器号
 /// @param base_reg_no 基址寄存器
 /// @param off 偏移
 void ILocArm32::leaStack(int rs_reg_no, int base_reg_no, int off)

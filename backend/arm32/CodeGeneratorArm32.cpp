@@ -131,6 +131,7 @@ void CodeGeneratorArm32::genCodeSection(Function * func)
     ILocArm32 iloc(module);
 
     // 指令选择生成汇编指令
+    // 最后一个参数是该类头文件中被声明的私有变量
     InstSelectorArm32 instSelector(IrInsts, iloc, func, simpleRegisterAllocator);
     instSelector.setShowLinearIR(this->showLinearIR);
     instSelector.run();
@@ -139,12 +140,12 @@ void CodeGeneratorArm32::genCodeSection(Function * func)
     iloc.deleteUnusedLabel();
 
     // ILOC代码输出为汇编代码——————先输出基础信息
-    fprintf(fp, ".align %d\n", func->getAlignment());       // 偏移
-    fprintf(fp, ".global %s\n", func->getName().c_str());   // 全局名称：函数名
+    fprintf(fp, ".align %d\n", func->getAlignment());               // 偏移
+    fprintf(fp, ".global %s\n", func->getName().c_str());           // 全局名称：函数名
     fprintf(fp, ".type %s, %%function\n", func->getName().c_str()); // 函数返回类型
-    fprintf(fp, "%s:\n", func->getName().c_str());      // 函数开始：
+    fprintf(fp, "%s:\n", func->getName().c_str());                  // 函数开始：
 
-    // 开启时输出IR指令作为注释
+    // 开启时输出IR指令作为注释 ———— 这一段不是真正的汇编代码，而是辅助 IR 信息
     if (this->showLinearIR) {
 
         // 输出有关局部变量的注释，便于查找问题
@@ -226,7 +227,7 @@ void CodeGeneratorArm32::registerAllocation(Function * func)
 
 /// @brief 寄存器分配前对函数内的指令进行调整，以便方便寄存器分配
 /// @param func 要处理的函数
-void CodeGeneratorArm32::adjustFormalParamInsts(Function * func)
+void CodeGeneratorArm32::adjustFormalParamInsts(Function * func) // TODO 看
 {
     // 函数形参的前四个实参值采用的是寄存器传值，后面栈传递
 
@@ -260,7 +261,7 @@ void CodeGeneratorArm32::adjustFuncCallInsts(Function * func)
     auto & insts = func->getInterCode().getInsts();
 
     // 函数返回值用R0寄存器，若函数调用有返回值，则赋值R0到对应寄存器
-    // 通过栈传递的实参，采用SP + 偏移的方式殉职，偏移肯定非负。
+    // 通过栈传递的实参，采用SP + 偏移的方式寻址，偏移肯定非负。
     for (auto pIter = insts.begin(); pIter != insts.end(); pIter++) {
 
         // 检查是否是函数调用指令，并且含有返回值
@@ -271,6 +272,7 @@ void CodeGeneratorArm32::adjustFuncCallInsts(Function * func)
             int32_t argNum = callInst->getOperandsNum();
 
             // 除前四个整数寄存器外，后面的参数采用栈传递
+            // 把第四个以后的形参放在栈中
             int esp = 0;
             for (int32_t k = 4; k < argNum; k++) {
 
@@ -375,9 +377,11 @@ void CodeGeneratorArm32::stackAlloc(Function * func)
 
     // 这里对临时变量和局部变量都在栈上进行分配，采用FP+偏移的寻址方式，偏移为负数
 
+    // 待分配的栈空间大小（字节）
     int32_t sp_esp = 0;
 
     // 遍历函数变量列表
+    // 为函数内临时变量分配栈空间
     for (auto var: func->getVarValues()) {
 
         // 对于简单类型的寄存器分配策略，假定临时变量和局部变量都保存在栈中，属于内存
@@ -388,11 +392,13 @@ void CodeGeneratorArm32::stackAlloc(Function * func)
         // baseRegNo不等于-1，则说明该变量肯定在栈上，属于内存变量，之前肯定已经分配过
         if ((var->getRegId() == -1) && (!var->getMemoryAddr())) {
 
-            // 该变量没有分配寄存器
+            // 该变量没有分配寄存器，并且该变量没有内存地址（还没有在内存上分配空间）
+            // 第二个判断方法是，该 Value 是否已经有基址寄存器，如果有说明以前已经分配过内存地址了
 
             int32_t size = var->getType()->getSize();
 
             // 32位ARM平台按照4字节的大小整数倍分配局部变量
+            // 将size向上取整到4的倍数
             size = (size + 3) & ~3;
 
             // 累计当前作用域大小
@@ -404,6 +410,7 @@ void CodeGeneratorArm32::stackAlloc(Function * func)
             // 之后需要对所有使用到该Value的指令在寄存器分配前要变换。
 
             // 局部变量偏移设置
+            // 为每个局部变量 Value 设置栈内偏移量
             var->setMemoryAddr(ARM32_FP_REG_NO, -sp_esp);
         }
     }

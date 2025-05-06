@@ -66,7 +66,7 @@ int SimpleRegisterAllocator::Allocate(Value * var, int32_t no)
 
         // 没有可用的寄存器分配，需要溢出一个变量的寄存器
 
-        // 溢出的策略：选择最迟加入队列的变量
+        // 溢出的策略：选择最早加入队列的变量
         Value * oldestVar = regValues.front();
 
         // 获取Load寄存器编号，设置该变量不再占用Load寄存器
