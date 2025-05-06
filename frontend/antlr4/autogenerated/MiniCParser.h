@@ -321,6 +321,7 @@ public:
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *T_SUB();
     PrimaryExpContext *primaryExp();
+    NegUnaryExpContext *negUnaryExp();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;

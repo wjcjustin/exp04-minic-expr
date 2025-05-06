@@ -56,8 +56,8 @@ addOp: T_ADD | T_SUB;
 // 乘除取余运算符
 mulOp: T_MUL | T_DIV | T_MOD;
 
-// 求负表达式
-negUnaryExp: T_SUB primaryExp;
+// 求负表达式 求负表达式可以嵌套
+negUnaryExp: T_SUB (primaryExp | negUnaryExp);
 
 // 一元表达式
 unaryExp:

@@ -330,7 +330,12 @@ std::any MiniCCSTVisitor::visitNegUnaryExp(MiniCParser::NegUnaryExpContext * ctx
     // 识别的文法产生式：negUnaryExp: T_SUB primaryExp;
 
     // 将一元求负运算符的右部分提取出来
-    ast_node * right = std::any_cast<ast_node *>(visitPrimaryExp(ctx->primaryExp()));
+    ast_node * right;
+    if (ctx->primaryExp()) {
+        right = std::any_cast<ast_node *>(visitPrimaryExp(ctx->primaryExp()));
+    } else {
+        right = std::any_cast<ast_node *>(visitNegUnaryExp(ctx->negUnaryExp()));
+    }
 
     // 创建一元求负节点
     auto neg_unary_node = create_contain_node(ast_operator_type::AST_OP_NEG);
