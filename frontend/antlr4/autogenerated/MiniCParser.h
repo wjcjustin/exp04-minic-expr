@@ -15,7 +15,7 @@ public:
     T_L_PAREN = 1, T_R_PAREN = 2, T_SEMICOLON = 3, T_L_BRACE = 4, T_R_BRACE = 5, 
     T_ASSIGN = 6, T_COMMA = 7, T_ADD = 8, T_SUB = 9, T_MUL = 10, T_DIV = 11, 
     T_MOD = 12, T_RETURN = 13, T_INT = 14, T_VOID = 15, T_ID = 16, T_DIGIT = 17, 
-    T_OCT_DIGIT = 18, T_HEX_DIGIT = 19, WS = 20
+    T_OCT_DIGIT = 18, T_HEX_DIGIT = 19, WS = 20, LINE_COMMENT = 21, BLOCK_COMMENT = 22
   };
 
   enum {

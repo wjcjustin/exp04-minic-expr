@@ -107,5 +107,7 @@ T_DIGIT: '0' | [1-9][0-9]*;
 T_OCT_DIGIT: '0' ('0' | [1-7][0-7]*);
 T_HEX_DIGIT: ('0x' | '0X') ('0' | [1-9a-fA-F][0-9a-fA-F]*);
 
-/* 空白符丢弃 */
+/* 空白符丢弃，包括注释 */
 WS: [ \r\n\t]+ -> skip;
+LINE_COMMENT: '//' ~[\r\n]* -> channel(HIDDEN);
+BLOCK_COMMENT: '/*' .*? '*/' -> channel(HIDDEN);

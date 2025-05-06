@@ -1,5 +1,4 @@
-
 int main()
 {
-    return 27 % 4;
+	return - - -1;
 }
