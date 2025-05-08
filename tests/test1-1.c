@@ -1,7 +1,4 @@
 int main()
 {
-    int a;
-    a = -1;
-
-    return 257;
+    return 2*2;
 }

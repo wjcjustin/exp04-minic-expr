@@ -12,6 +12,7 @@
 /// <tr><th>Date       <th>Version <th>Author  <th>Description
 /// <tr><td>2024-09-29 <td>1.0     <td>zenglj  <td>新建
 /// <tr><td>2024-11-23 <td>1.1     <td>zenglj  <td>表达式版增强
+/// <tr><td>2025-05-04 <td>1.2     <td>weijiachao  <td>添加求负、乘除、取余
 /// </table>
 ///
 #pragma once
