@@ -81,14 +81,23 @@ relationalBinaryOp:
 // 二元布尔运算符
 logicBinaryOp: T_AND | T_OR;
 
-// 求负表达式 求负表达式可以嵌套
-negUnaryExp: T_SUB (primaryExp | negUnaryExp);
+// // 求负表达式 求负表达式可以嵌套
+// negUnaryExp: T_SUB (primaryExp | normalUnaryExp);
 
-// 一元表达式
+// // 逻辑非表达式
+// logicNotUnaryExp: T_NOT (primaryExp | normalUnaryExp);
+
+// 通用一元表达式
+normalUnaryExp: unaryOp (primaryExp | normalUnaryExp);
+
+// 一元运算符
+unaryOp: T_SUB | T_NOT;
+
+// 一元表达式 逻辑非和一元求负优先级相同，右结合
 unaryExp:
 	primaryExp
 	| T_ID T_L_PAREN realParamList? T_R_PAREN
-	| negUnaryExp;
+	| normalUnaryExp;
 
 // 基本表达式：括号表达式、整数、左值表达式
 primaryExp:

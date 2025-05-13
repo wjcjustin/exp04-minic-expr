@@ -63,7 +63,9 @@ public:
 
     virtual std::any visitLogicBinaryOp(MiniCParser::LogicBinaryOpContext *context) = 0;
 
-    virtual std::any visitNegUnaryExp(MiniCParser::NegUnaryExpContext *context) = 0;
+    virtual std::any visitNormalUnaryExp(MiniCParser::NormalUnaryExpContext *context) = 0;
+
+    virtual std::any visitUnaryOp(MiniCParser::UnaryOpContext *context) = 0;
 
     virtual std::any visitUnaryExp(MiniCParser::UnaryExpContext *context) = 0;
 

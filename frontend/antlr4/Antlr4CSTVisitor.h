@@ -141,12 +141,33 @@ protected:
     ///
     std::any visitMulOp(MiniCParser::MulOpContext * ctx) override;
 
+    // ///
+    // /// @brief 非终结符negUnaryExp的分析
+    // /// @param ctx CST上下文
+    // /// @return std::any AST的节点
+    // ///
+    // std::any visitNegUnaryExp(MiniCParser::NegUnaryExpContext * ctx) override;
+
+    // ///
+    // /// @brief 非终结符LogicNotUnaryExp的分析
+    // /// @param ctx CST上下文
+    // /// @return std::any AST的节点
+    // ///
+    // std::any visitLogicNotUnaryExp(MiniCParser::LogicNotUnaryExpContext * ctx) override;
+
     ///
-    /// @brief 非终结符negUnaryExp的分析
+    /// @brief 非终结符NormalUnaryExp的分析
     /// @param ctx CST上下文
     /// @return std::any AST的节点
     ///
-    std::any visitNegUnaryExp(MiniCParser::NegUnaryExpContext * ctx) override;
+    std::any visitNormalUnaryExp(MiniCParser::NormalUnaryExpContext * ctx) override;
+
+    ///
+    /// @brief 非终结符visitUnaryOp的分析
+    /// @param ctx CST上下文
+    /// @return std::any AST的节点
+    ///
+    std::any visitUnaryOp(MiniCParser::UnaryOpContext *ctx) override;
 
     ///
     /// @brief 非终结符unaryExp的分析

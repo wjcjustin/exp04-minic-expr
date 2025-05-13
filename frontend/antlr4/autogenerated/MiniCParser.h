@@ -26,8 +26,8 @@ public:
     RuleStatement = 8, RuleExpr = 9, RuleArithmeticExp = 10, RuleRelationalBinaryExp = 11, 
     RuleLogicBinaryExp = 12, RuleAddExp = 13, RuleMulExp = 14, RuleAddOp = 15, 
     RuleMulOp = 16, RuleRelationalBinaryOp = 17, RuleLogicBinaryOp = 18, 
-    RuleNegUnaryExp = 19, RuleUnaryExp = 20, RulePrimaryExp = 21, RuleRealParamList = 22, 
-    RuleLVal = 23
+    RuleNormalUnaryExp = 19, RuleUnaryOp = 20, RuleUnaryExp = 21, RulePrimaryExp = 22, 
+    RuleRealParamList = 23, RuleLVal = 24
   };
 
   explicit MiniCParser(antlr4::TokenStream *input);
@@ -66,7 +66,8 @@ public:
   class MulOpContext;
   class RelationalBinaryOpContext;
   class LogicBinaryOpContext;
-  class NegUnaryExpContext;
+  class NormalUnaryExpContext;
+  class UnaryOpContext;
   class UnaryExpContext;
   class PrimaryExpContext;
   class RealParamListContext;
@@ -401,20 +402,34 @@ public:
 
   LogicBinaryOpContext* logicBinaryOp();
 
-  class  NegUnaryExpContext : public antlr4::ParserRuleContext {
+  class  NormalUnaryExpContext : public antlr4::ParserRuleContext {
   public:
-    NegUnaryExpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    NormalUnaryExpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *T_SUB();
+    UnaryOpContext *unaryOp();
     PrimaryExpContext *primaryExp();
-    NegUnaryExpContext *negUnaryExp();
+    NormalUnaryExpContext *normalUnaryExp();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    
   };
 
-  NegUnaryExpContext* negUnaryExp();
+  NormalUnaryExpContext* normalUnaryExp();
+
+  class  UnaryOpContext : public antlr4::ParserRuleContext {
+  public:
+    UnaryOpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *T_SUB();
+    antlr4::tree::TerminalNode *T_NOT();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  UnaryOpContext* unaryOp();
 
   class  UnaryExpContext : public antlr4::ParserRuleContext {
   public:
@@ -425,7 +440,7 @@ public:
     antlr4::tree::TerminalNode *T_L_PAREN();
     antlr4::tree::TerminalNode *T_R_PAREN();
     RealParamListContext *realParamList();
-    NegUnaryExpContext *negUnaryExp();
+    NormalUnaryExpContext *normalUnaryExp();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;

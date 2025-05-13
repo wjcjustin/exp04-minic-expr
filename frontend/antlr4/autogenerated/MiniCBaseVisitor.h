@@ -103,7 +103,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitNegUnaryExp(MiniCParser::NegUnaryExpContext *ctx) override {
+  virtual std::any visitNormalUnaryExp(MiniCParser::NormalUnaryExpContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitUnaryOp(MiniCParser::UnaryOpContext *ctx) override {
     return visitChildren(ctx);
   }
 

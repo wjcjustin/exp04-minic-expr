@@ -426,25 +426,36 @@ std::any MiniCCSTVisitor::visitMulOp(MiniCParser::MulOpContext * ctx)
     }
 }
 
-std::any MiniCCSTVisitor::visitNegUnaryExp(MiniCParser::NegUnaryExpContext * ctx)
+std::any MiniCCSTVisitor::visitNormalUnaryExp(MiniCParser::NormalUnaryExpContext * ctx)
+// TODO 实现一个通用的一元运算表达式，通过识别的不同的op来创建不同的新节点（参考addOP）
 {
-    // 识别的文法产生式：negUnaryExp: T_SUB primaryExp;
+    // 识别的文法产生式：normalUnaryExp: unaryOp (primaryExp | normalUnaryExp);
+    ast_operator_type op = std::any_cast<ast_operator_type>(visitUnaryOp(ctx->unaryOp()));
 
     // 将一元求负运算符的右部分提取出来
     ast_node * right;
     if (ctx->primaryExp()) {
         right = std::any_cast<ast_node *>(visitPrimaryExp(ctx->primaryExp()));
     } else {
-        right = std::any_cast<ast_node *>(visitNegUnaryExp(ctx->negUnaryExp()));
+        right = std::any_cast<ast_node *>(visitNormalUnaryExp(ctx->normalUnaryExp()));
     }
 
     // 创建一元求负节点
-    auto neg_unary_node = create_contain_node(ast_operator_type::AST_OP_NEG);
+    auto unary_node = create_contain_node(op);
 
     // 将右部插入到一元求负节点中
-    neg_unary_node->insert_son_node(right);
+    unary_node->insert_son_node(right);
 
-    return neg_unary_node;
+    return unary_node;
+}
+
+std::any MiniCCSTVisitor::visitUnaryOp(MiniCParser::UnaryOpContext * ctx)
+{
+    if (ctx->T_NOT()) {
+        return ast_operator_type::AST_OP_NOT;
+    } else {
+        return ast_operator_type::AST_OP_SUB;
+    }
 }
 
 std::any MiniCCSTVisitor::visitUnaryExp(MiniCParser::UnaryExpContext * ctx)
@@ -454,9 +465,9 @@ std::any MiniCCSTVisitor::visitUnaryExp(MiniCParser::UnaryExpContext * ctx)
     if (ctx->primaryExp()) {
         // 普通表达式
         return visitPrimaryExp(ctx->primaryExp());
-    } else if (ctx->negUnaryExp()) {
-        // 求负表达式
-        return visitNegUnaryExp(ctx->negUnaryExp());
+    } else if (ctx->normalUnaryExp()) {
+        // 通用一元表达式
+        return visitNormalUnaryExp(ctx->normalUnaryExp());
     } else if (ctx->T_ID()) {
 
         // 创建函数调用名终结符节点
