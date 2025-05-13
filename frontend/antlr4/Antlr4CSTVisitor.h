@@ -78,6 +78,27 @@ protected:
     /// @return AST的节点
     std::any visitExpr(MiniCParser::ExprContext * ctx) override;
 
+    /// @brief 非终结运算符ArithmeticExp的遍历
+    /// @param ctx CST上下文
+    /// @return AST的节点
+    std::any visitArithmeticExp(MiniCParser::ArithmeticExpContext * ctx) override;
+
+    /// @brief 非终结运算符RelationalBinaryExp的遍历
+    /// @param ctx CST上下文
+    /// @return AST的节点
+    std::any visitRelationalBinaryExp(MiniCParser::RelationalBinaryExpContext * ctx) override;
+
+    /// @brief 非终结运算符LogicBinaryExp的遍历
+    /// @param ctx CST上下文
+    /// @return AST的节点
+    std::any visitLogicBinaryExp(MiniCParser::LogicBinaryExpContext * ctx) override;
+
+    /// @brief 非终结运算符LogicBinaryExp的遍历
+    std::any visitLogicBinaryOp(MiniCParser::LogicBinaryOpContext * ctx) override;
+
+    /// @brief 非终结运算符LogicRelationalExp的遍历
+    std::any visitRelationalBinaryOp(MiniCParser::RelationalBinaryOpContext * ctx) override;
+
     ///
     /// @brief 内部产生的非终结符assignStatement的分析
     /// @param ctx CST上下文

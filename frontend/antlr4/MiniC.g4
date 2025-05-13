@@ -41,8 +41,21 @@ statement:
 	| block								# blockStatement
 	| expr? T_SEMICOLON					# expressionStatement;
 
-// 表达式文法 expr : AddExp 表达式目前只支持加法与减法运算
-expr: addExp;
+// 表达式文法 expr : 支持逻辑运算、关系运算、算术运算
+expr: logicBinaryExp;
+
+// 运算优先级：算术 > 关系 > 逻辑
+
+// 算术表达式
+arithmeticExp: addExp;
+
+// 二元关系表达式
+relationalBinaryExp:
+	arithmeticExp (relationalBinaryOp arithmeticExp)*;
+
+// 二元逻辑表达式
+logicBinaryExp:
+	relationalBinaryExp (logicBinaryOp relationalBinaryExp)*;
 
 // 加减表达式，操作数为乘除取余表达式，表示乘除取余操作优先级高于加减
 addExp: mulExp (addOp mulExp)*;
@@ -55,6 +68,18 @@ addOp: T_ADD | T_SUB;
 
 // 乘除取余运算符
 mulOp: T_MUL | T_DIV | T_MOD;
+
+// 二元关系运算符
+relationalBinaryOp:
+	T_EQUAL
+	| T_NOT_EQUAL
+	| T_GREATER
+	| T_LESSER
+	| T_GREATER_EQUAL
+	| T_LESSER_EQUAL;
+
+// 二元布尔运算符
+logicBinaryOp: T_AND | T_OR;
 
 // 求负表达式 求负表达式可以嵌套
 negUnaryExp: T_SUB (primaryExp | negUnaryExp);
@@ -96,6 +121,16 @@ T_SUB: '-';
 T_MUL: '*';
 T_DIV: '/';
 T_MOD: '%';
+
+T_AND: '&&';
+T_OR: '||';
+T_NOT: '!';
+T_EQUAL: '==';
+T_NOT_EQUAL: '!=';
+T_GREATER: '>';
+T_LESSER: '<';
+T_GREATER_EQUAL: '>=';
+T_LESSER_EQUAL: '<=';
 
 // 要注意关键字同样也属于T_ID，因此必须放在T_ID的前面，否则会识别成T_ID
 T_RETURN: 'return';

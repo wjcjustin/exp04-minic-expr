@@ -67,6 +67,18 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitArithmeticExp(MiniCParser::ArithmeticExpContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitRelationalBinaryExp(MiniCParser::RelationalBinaryExpContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitLogicBinaryExp(MiniCParser::LogicBinaryExpContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitAddExp(MiniCParser::AddExpContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -80,6 +92,14 @@ public:
   }
 
   virtual std::any visitMulOp(MiniCParser::MulOpContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitRelationalBinaryOp(MiniCParser::RelationalBinaryOpContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitLogicBinaryOp(MiniCParser::LogicBinaryOpContext *ctx) override {
     return visitChildren(ctx);
   }
 

@@ -14,16 +14,20 @@ public:
   enum {
     T_L_PAREN = 1, T_R_PAREN = 2, T_SEMICOLON = 3, T_L_BRACE = 4, T_R_BRACE = 5, 
     T_ASSIGN = 6, T_COMMA = 7, T_ADD = 8, T_SUB = 9, T_MUL = 10, T_DIV = 11, 
-    T_MOD = 12, T_RETURN = 13, T_INT = 14, T_VOID = 15, T_ID = 16, T_DIGIT = 17, 
-    T_OCT_DIGIT = 18, T_HEX_DIGIT = 19, WS = 20, LINE_COMMENT = 21, BLOCK_COMMENT = 22
+    T_MOD = 12, T_AND = 13, T_OR = 14, T_NOT = 15, T_EQUAL = 16, T_NOT_EQUAL = 17, 
+    T_GREATER = 18, T_LESSER = 19, T_GREATER_EQUAL = 20, T_LESSER_EQUAL = 21, 
+    T_RETURN = 22, T_INT = 23, T_VOID = 24, T_ID = 25, T_DIGIT = 26, T_OCT_DIGIT = 27, 
+    T_HEX_DIGIT = 28, WS = 29, LINE_COMMENT = 30, BLOCK_COMMENT = 31
   };
 
   enum {
     RuleCompileUnit = 0, RuleFuncDef = 1, RuleBlock = 2, RuleBlockItemList = 3, 
     RuleBlockItem = 4, RuleVarDecl = 5, RuleBasicType = 6, RuleVarDef = 7, 
-    RuleStatement = 8, RuleExpr = 9, RuleAddExp = 10, RuleMulExp = 11, RuleAddOp = 12, 
-    RuleMulOp = 13, RuleNegUnaryExp = 14, RuleUnaryExp = 15, RulePrimaryExp = 16, 
-    RuleRealParamList = 17, RuleLVal = 18
+    RuleStatement = 8, RuleExpr = 9, RuleArithmeticExp = 10, RuleRelationalBinaryExp = 11, 
+    RuleLogicBinaryExp = 12, RuleAddExp = 13, RuleMulExp = 14, RuleAddOp = 15, 
+    RuleMulOp = 16, RuleRelationalBinaryOp = 17, RuleLogicBinaryOp = 18, 
+    RuleNegUnaryExp = 19, RuleUnaryExp = 20, RulePrimaryExp = 21, RuleRealParamList = 22, 
+    RuleLVal = 23
   };
 
   explicit MiniCParser(antlr4::TokenStream *input);
@@ -53,10 +57,15 @@ public:
   class VarDefContext;
   class StatementContext;
   class ExprContext;
+  class ArithmeticExpContext;
+  class RelationalBinaryExpContext;
+  class LogicBinaryExpContext;
   class AddExpContext;
   class MulExpContext;
   class AddOpContext;
   class MulOpContext;
+  class RelationalBinaryOpContext;
+  class LogicBinaryOpContext;
   class NegUnaryExpContext;
   class UnaryExpContext;
   class PrimaryExpContext;
@@ -245,7 +254,7 @@ public:
   public:
     ExprContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    AddExpContext *addExp();
+    LogicBinaryExpContext *logicBinaryExp();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -253,6 +262,51 @@ public:
   };
 
   ExprContext* expr();
+
+  class  ArithmeticExpContext : public antlr4::ParserRuleContext {
+  public:
+    ArithmeticExpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    AddExpContext *addExp();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  ArithmeticExpContext* arithmeticExp();
+
+  class  RelationalBinaryExpContext : public antlr4::ParserRuleContext {
+  public:
+    RelationalBinaryExpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    std::vector<ArithmeticExpContext *> arithmeticExp();
+    ArithmeticExpContext* arithmeticExp(size_t i);
+    std::vector<RelationalBinaryOpContext *> relationalBinaryOp();
+    RelationalBinaryOpContext* relationalBinaryOp(size_t i);
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  RelationalBinaryExpContext* relationalBinaryExp();
+
+  class  LogicBinaryExpContext : public antlr4::ParserRuleContext {
+  public:
+    LogicBinaryExpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    std::vector<RelationalBinaryExpContext *> relationalBinaryExp();
+    RelationalBinaryExpContext* relationalBinaryExp(size_t i);
+    std::vector<LogicBinaryOpContext *> logicBinaryOp();
+    LogicBinaryOpContext* logicBinaryOp(size_t i);
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  LogicBinaryExpContext* logicBinaryExp();
 
   class  AddExpContext : public antlr4::ParserRuleContext {
   public:
@@ -314,6 +368,38 @@ public:
   };
 
   MulOpContext* mulOp();
+
+  class  RelationalBinaryOpContext : public antlr4::ParserRuleContext {
+  public:
+    RelationalBinaryOpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *T_EQUAL();
+    antlr4::tree::TerminalNode *T_NOT_EQUAL();
+    antlr4::tree::TerminalNode *T_GREATER();
+    antlr4::tree::TerminalNode *T_LESSER();
+    antlr4::tree::TerminalNode *T_GREATER_EQUAL();
+    antlr4::tree::TerminalNode *T_LESSER_EQUAL();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  RelationalBinaryOpContext* relationalBinaryOp();
+
+  class  LogicBinaryOpContext : public antlr4::ParserRuleContext {
+  public:
+    LogicBinaryOpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *T_AND();
+    antlr4::tree::TerminalNode *T_OR();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  LogicBinaryOpContext* logicBinaryOp();
 
   class  NegUnaryExpContext : public antlr4::ParserRuleContext {
   public:

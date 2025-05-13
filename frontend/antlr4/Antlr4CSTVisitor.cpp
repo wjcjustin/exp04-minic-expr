@@ -17,6 +17,7 @@
 ///
 
 #include <any>
+#include <cstdint>
 #include <string>
 
 #include "Antlr4CSTVisitor.h"
@@ -197,6 +198,105 @@ std::any MiniCCSTVisitor::visitReturnStatement(MiniCParser::ReturnStatementConte
 std::any MiniCCSTVisitor::visitExpr(MiniCParser::ExprContext * ctx)
 {
     // 识别产生式：expr: addExp;
+
+    return visitLogicBinaryExp(ctx->logicBinaryExp());
+}
+
+/// @brief 非终结符 logicBinaryExp 的遍历
+std::any MiniCCSTVisitor::visitLogicBinaryExp(MiniCParser::LogicBinaryExpContext * ctx)
+{
+    // logicBinaryExp: relationalBinaryExp(logicBinaryOp relationalBinaryExp) *;
+    if (ctx->logicBinaryOp().empty()) {
+        // 没有逻辑运算符，识别第一个关系表达式
+        return visitRelationalBinaryExp(ctx->relationalBinaryExp()[0]);
+    }
+
+    ast_node *left, *right;
+
+    auto opsCtxVec = ctx->logicBinaryOp();
+
+    for (int k = 0; k < (int) opsCtxVec.size(); k++) {
+        ast_operator_type op = std::any_cast<ast_operator_type>(visitLogicBinaryOp(opsCtxVec[k]));
+
+        if (k == 0) {
+            left = std::any_cast<ast_node *>(visitRelationalBinaryExp(ctx->relationalBinaryExp()[k]));
+        }
+        right = std::any_cast<ast_node *>(visitRelationalBinaryExp(ctx->relationalBinaryExp()[k + 1]));
+
+        // 新建逻辑表达式节点作为下一个运算符的做操作符
+        left = ast_node::New(op, left, right, nullptr);
+    }
+
+    return left;
+}
+
+/// @brief 非终结运算符LogicBinaryOp的遍历
+/// @param ctx CST上下文
+std::any MiniCCSTVisitor::visitLogicBinaryOp(MiniCParser::LogicBinaryOpContext * ctx)
+{
+    // 识别的文法产生式：logicBinaryOp: T_AND | T_OR;
+
+    if (ctx->T_AND()) {
+        return ast_operator_type::AST_OP_AND;
+    } else {
+        return ast_operator_type::AST_OP_OR;
+    }
+}
+
+/// @brief 非终结符 logicBinaryExp 的遍历
+std::any MiniCCSTVisitor::visitRelationalBinaryExp(MiniCParser::RelationalBinaryExpContext * ctx) // TODO
+{
+    // relationalBinaryExp: arithmeticExp(relationalBinaryOp arithmeticExp) *;
+    if (ctx->relationalBinaryOp().empty()) {
+        // 没有关系运算符，识别第一个算术表达式
+        return visitArithmeticExp(ctx->arithmeticExp()[0]);
+    }
+
+    ast_node *left, *right;
+
+    auto opsCtxVec = ctx->relationalBinaryOp();
+
+    for (int k = 0; k < (int) opsCtxVec.size(); k++) {
+        ast_operator_type op = std::any_cast<ast_operator_type>(visitRelationalBinaryOp(opsCtxVec[k]));
+
+        if (k == 0) {
+            left = std::any_cast<ast_node *>(visitArithmeticExp(ctx->arithmeticExp()[k]));
+        }
+        right = std::any_cast<ast_node *>(visitArithmeticExp(ctx->arithmeticExp()[k + 1]));
+
+        // 新建逻辑表达式节点作为下一个运算符的做操作符
+        left = ast_node::New(op, left, right, nullptr);
+    }
+
+    return left;
+}
+
+/// @brief 非终结运算符LogicBinaryOp的遍历
+/// @param ctx CST上下文
+std::any MiniCCSTVisitor::visitRelationalBinaryOp(MiniCParser::RelationalBinaryOpContext * ctx) // TODO
+{
+    // == != > < >= <=;
+
+    if (ctx->T_EQUAL()) {
+        return ast_operator_type::AST_OP_EQUAL;
+    } else if (ctx->T_NOT_EQUAL()) {
+        return ast_operator_type::AST_OP_NOT_EQUAL;
+    } else if (ctx->T_GREATER_EQUAL()) {
+        return ast_operator_type::AST_OP_GREATER_EQUAL;
+    } else if (ctx->T_GREATER()) {
+        return ast_operator_type::AST_OP_GREATER;
+    } else if (ctx->T_LESSER_EQUAL()) {
+        return ast_operator_type::AST_OP_LESSER_EQUAL;
+    } else {
+        return ast_operator_type::AST_OP_LESSER;
+    }
+}
+
+/// @brief 非终结运算符ArithmeticExp的遍历
+/// @param ctx CST上下文
+std::any MiniCCSTVisitor::visitArithmeticExp(MiniCParser::ArithmeticExpContext * ctx)
+{
+    // 识别产生式：ariithmeticExp: addExp;
 
     return visitAddExp(ctx->addExp());
 }

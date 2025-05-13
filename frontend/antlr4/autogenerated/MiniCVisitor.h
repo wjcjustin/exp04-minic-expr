@@ -45,6 +45,12 @@ public:
 
     virtual std::any visitExpr(MiniCParser::ExprContext *context) = 0;
 
+    virtual std::any visitArithmeticExp(MiniCParser::ArithmeticExpContext *context) = 0;
+
+    virtual std::any visitRelationalBinaryExp(MiniCParser::RelationalBinaryExpContext *context) = 0;
+
+    virtual std::any visitLogicBinaryExp(MiniCParser::LogicBinaryExpContext *context) = 0;
+
     virtual std::any visitAddExp(MiniCParser::AddExpContext *context) = 0;
 
     virtual std::any visitMulExp(MiniCParser::MulExpContext *context) = 0;
@@ -52,6 +58,10 @@ public:
     virtual std::any visitAddOp(MiniCParser::AddOpContext *context) = 0;
 
     virtual std::any visitMulOp(MiniCParser::MulOpContext *context) = 0;
+
+    virtual std::any visitRelationalBinaryOp(MiniCParser::RelationalBinaryOpContext *context) = 0;
+
+    virtual std::any visitLogicBinaryOp(MiniCParser::LogicBinaryOpContext *context) = 0;
 
     virtual std::any visitNegUnaryExp(MiniCParser::NegUnaryExpContext *context) = 0;
 

@@ -103,6 +103,33 @@ enum class ast_operator_type : int {
     /// @brief 二元运算符%
     AST_OP_MOD,
 
+    /// @brief 二元运算符&&
+    AST_OP_AND,
+
+    /// @brief 二元运算符||
+    AST_OP_OR,
+
+    /// @brief 一元运算符!
+    AST_OP_NOT,
+
+    /// @brief 二元运算符==
+    AST_OP_EQUAL,
+
+    /// @brief 二元运算符!=
+    AST_OP_NOT_EQUAL,
+
+    /// @brief 二元运算符>
+    AST_OP_GREATER,
+
+    /// @brief 二元运算符<
+    AST_OP_LESSER,
+
+    /// @brief 二元运算符>=
+    AST_OP_GREATER_EQUAL,
+
+    /// @brief 二元运算符<=
+    AST_OP_LESSER_EQUAL,
+
     /// @brief 最大标识符，表示非法运算符
     AST_OP_MAX,
 };
