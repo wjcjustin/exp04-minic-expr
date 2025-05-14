@@ -1,11 +1,7 @@
 int main()
 {
     int a;
-    a = 10086;
-    if (4 + 1 * 2) {
-        return 1;
-    } else {
-        return 2;
-    }
-    return 0;
+    a = 1 != 2;
+    a = 1 < 2 <3;
+    a = 1 <= 2;
 }

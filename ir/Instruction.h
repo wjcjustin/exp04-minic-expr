@@ -63,6 +63,24 @@ enum class IRInstOperator : std::int8_t {
     /// @brief 整数取余运算，二元运算
     IRINST_OP_MOD_I,
 
+    /// @brief 相等，二元关系运算
+    IRINST_OP_EQUAL,
+
+    /// @brief 不相等，二元关系运算
+    IRINST_OP_NOT_EQUAL,
+
+    /// @brief 大于，二元关系运算
+    IRINST_OP_GREATER,
+
+    /// @brief 小于，二元关系运算
+    IRINST_OP_LESSER,
+
+    /// @brief 大于等于，二元关系运算
+    IRINST_OP_GREATER_EQUAL,
+
+    /// @brief 小于等于，二元关系运算
+    IRINST_OP_LESSER_EQUAL,
+
     /// @brief 最大指令码，也是无效指令
     IRINST_OP_MAX
 };

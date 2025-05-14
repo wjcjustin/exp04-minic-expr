@@ -55,6 +55,14 @@ IRGenerator::IRGenerator(ast_node * _root, Module * _module) : root(_root), modu
     ast2ir_handlers[ast_operator_type::AST_OP_DIV] = &IRGenerator::ir_div;
     ast2ir_handlers[ast_operator_type::AST_OP_MOD] = &IRGenerator::ir_mod;
 
+    /* 关系运算 大于、大于等于、小于、小于等于、等于、不等于 */
+    ast2ir_handlers[ast_operator_type::AST_OP_GREATER] = &IRGenerator::ir_greater;
+    ast2ir_handlers[ast_operator_type::AST_OP_GREATER_EQUAL] = &IRGenerator::ir_greater_equal;
+    ast2ir_handlers[ast_operator_type::AST_OP_LESSER] = &IRGenerator::ir_lesser;
+    ast2ir_handlers[ast_operator_type::AST_OP_LESSER_EQUAL] = &IRGenerator::ir_lesser_equal;
+    ast2ir_handlers[ast_operator_type::AST_OP_EQUAL] = &IRGenerator::ir_equal;
+    ast2ir_handlers[ast_operator_type::AST_OP_NOT_EQUAL] = &IRGenerator::ir_not_equal;
+
     /* 语句 */
     ast2ir_handlers[ast_operator_type::AST_OP_ASSIGN] = &IRGenerator::ir_assign;
     ast2ir_handlers[ast_operator_type::AST_OP_RETURN] = &IRGenerator::ir_return;
@@ -823,4 +831,87 @@ bool IRGenerator::ir_ifelse(ast_node * node)
     node->blockInsts.addInst(l3);
 
     return true;
+}
+
+/// @brief 关系节点翻译成线性中间IR，包括 > < >= <= == !=
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_relation(ast_node * node, IRInstOperator op)
+{
+    ast_node * src1_node = node->sons[0];
+    ast_node * src2_node = node->sons[1];
+
+    // 左边操作数
+    ast_node * left = ir_visit_ast_node(src1_node);
+    if (!left) {
+        // 某个变量没有定值
+        return false;
+    }
+
+    // 右边操作数
+    ast_node * right = ir_visit_ast_node(src2_node);
+    if (!right) {
+        // 某个变量没有定值
+        return false;
+    }
+
+    BinaryInstruction * relationInst =
+        new BinaryInstruction(module->getCurrentFunction(), op, left->val, right->val, IntegerType::getTypeBool());
+
+    // 创建临时变量保存IR的值，以及线性IR指令
+    node->blockInsts.addInst(left->blockInsts);
+    node->blockInsts.addInst(right->blockInsts);
+    node->blockInsts.addInst(relationInst);
+
+    node->val = relationInst;
+
+    return true;
+}
+
+/// @brief 大于 节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_greater(ast_node * node)
+{
+    return ir_relation(node, IRInstOperator::IRINST_OP_GREATER);
+}
+
+/// @brief 大于等于 节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_greater_equal(ast_node * node)
+{
+    return ir_relation(node, IRInstOperator::IRINST_OP_GREATER_EQUAL);
+}
+
+/// @brief 小于 节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_lesser(ast_node * node)
+{
+    return ir_relation(node, IRInstOperator::IRINST_OP_LESSER);
+}
+
+/// @brief 小于等于 节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_lesser_equal(ast_node * node)
+{
+    return ir_relation(node, IRInstOperator::IRINST_OP_LESSER_EQUAL);
+}
+
+/// @brief 等于 节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_equal(ast_node * node)
+{
+    return ir_relation(node, IRInstOperator::IRINST_OP_EQUAL);
+}
+
+/// @brief 不等于 节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_not_equal(ast_node * node)
+{
+    return ir_relation(node, IRInstOperator::IRINST_OP_NOT_EQUAL);
 }

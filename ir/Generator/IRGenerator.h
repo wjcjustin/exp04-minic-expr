@@ -93,6 +93,41 @@ protected:
     /// @return 翻译是否成功，true：成功，false：失败
     bool ir_mod(ast_node * node);
 
+    /// @brief 大于 AST节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_greater(ast_node * node);
+
+    /// @brief 小于 AST节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_lesser(ast_node * node);
+
+    /// @brief 大于等于 AST节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_greater_equal(ast_node * node);
+
+    /// @brief 大于等于 AST节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_lesser_equal(ast_node * node);
+
+    /// @brief 等于 AST节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_equal(ast_node * node);
+
+    /// @brief 不等于 AST节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_not_equal(ast_node * node);
+
+    /// @brief 关系AST节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_relation(ast_node * node, IRInstOperator op);
+
     /// @brief 赋值AST节点翻译成线性中间IR
     /// @param node AST节点
     /// @return 翻译是否成功，true：成功，false：失败
