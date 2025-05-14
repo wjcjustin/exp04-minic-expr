@@ -39,7 +39,11 @@ statement:
 	T_RETURN expr T_SEMICOLON			# returnStatement
 	| lVal T_ASSIGN expr T_SEMICOLON	# assignStatement
 	| block								# blockStatement
-	| expr? T_SEMICOLON					# expressionStatement;
+	| expr? T_SEMICOLON					# expressionStatement
+	| ifelseExpr						# ifelseStatement;
+
+// ifelse语句块(暂时不支持else if)
+ifelseExpr: T_IF T_L_PAREN expr T_R_PAREN block (T_ELSE block)?;
 
 // 表达式文法 expr : 支持逻辑运算、关系运算、算术运算
 expr: logicBinaryExp;
@@ -49,12 +53,12 @@ expr: logicBinaryExp;
 // 算术表达式
 arithmeticExp: addExp;
 
-// 二元关系表达式
+// 二元关系表达式(大于、小于、等于...)
 relationalBinaryExp:
 	arithmeticExp (relationalBinaryOp arithmeticExp)*;
 
 // 二元逻辑表达式，优先级 && > ||
-logicBinaryExp:	logicAndExp (T_OR logicAndExp)*;
+logicBinaryExp: logicAndExp (T_OR logicAndExp)*;
 
 logicAndExp: relationalBinaryExp (T_AND relationalBinaryExp)*;
 
@@ -140,6 +144,8 @@ T_LESSER_EQUAL: '<=';
 T_RETURN: 'return';
 T_INT: 'int';
 T_VOID: 'void';
+T_IF: 'if';
+T_ELSE: 'else';
 
 T_ID: [a-zA-Z_][a-zA-Z0-9_]*;
 T_DIGIT: '0' | [1-9][0-9]*;

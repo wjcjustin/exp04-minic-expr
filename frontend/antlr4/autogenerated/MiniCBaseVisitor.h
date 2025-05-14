@@ -63,6 +63,14 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitIfelseStatement(MiniCParser::IfelseStatementContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitIfelseExpr(MiniCParser::IfelseExprContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitExpr(MiniCParser::ExprContext *ctx) override {
     return visitChildren(ctx);
   }

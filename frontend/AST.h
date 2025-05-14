@@ -130,6 +130,9 @@ enum class ast_operator_type : int {
     /// @brief 二元运算符<=
     AST_OP_LESSER_EQUAL,
 
+    /// @brief 分支语句ifelse
+    AST_OP_IF_ELSE,
+
     /// @brief 最大标识符，表示非法运算符
     AST_OP_MAX,
 };
@@ -228,7 +231,6 @@ public:
 
     /// @brief 创建具备指定类型的节点
     /// @param type 节点值类型
-    /// @param line_no 行号
     /// @return 创建的节点
     static ast_node * New(Type * type);
 

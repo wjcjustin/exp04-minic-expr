@@ -121,6 +121,9 @@ string getNodeName(ast_node * astnode)
         case ast_operator_type::AST_OP_LESSER_EQUAL:
             nodeName = "<=";
             break;
+        case ast_operator_type::AST_OP_IF_ELSE:
+            nodeName = "ifelse";
+            break;
         default:
             nodeName = "unknown";
             break;

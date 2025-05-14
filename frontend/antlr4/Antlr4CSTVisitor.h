@@ -224,4 +224,14 @@ protected:
     /// @return std::any AST的节点
     ///
     std::any visitExpressionStatement(MiniCParser::ExpressionStatementContext * context) override;
+
+    /// @brief 非终结运算符statement中的ifelseStatement的遍历
+    /// @param ctx CST上下文
+    /// @return AST的节点
+    std::any visitIfelseStatement(MiniCParser::IfelseStatementContext * ctx) override;
+
+    /// @brief 非终结运算符ifelseExpr的遍历
+    /// @param ctx CST上下文
+    /// @return AST的节点
+    std::any visitIfelseExpr(MiniCParser::IfelseExprContext * ctx) override;
 };

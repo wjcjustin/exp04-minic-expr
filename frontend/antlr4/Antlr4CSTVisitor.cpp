@@ -173,6 +173,8 @@ std::any MiniCCSTVisitor::visitStatement(MiniCParser::StatementContext * ctx)
         return visitBlockStatement(blockCtx);
     } else if (Instanceof(exprCtx, MiniCParser::ExpressionStatementContext *, ctx)) {
         return visitExpressionStatement(exprCtx);
+    } else if (Instanceof(ifelseCtx, MiniCParser::IfelseStatementContext *, ctx)) {
+        return visitIfelseStatement(ifelseCtx);
     }
 
     return nullptr;
@@ -631,4 +633,41 @@ std::any MiniCCSTVisitor::visitExpressionStatement(MiniCParser::ExpressionStatem
         // 直接返回空指针，需要再把语句加入到语句块时要注意判断，空语句不要加入
         return nullptr;
     }
+}
+
+/// @brief 非终结运算符statement中的ifelseStatement的遍历
+/// @param ctx CST上下文
+/// @return AST的节点
+std::any MiniCCSTVisitor::visitIfelseStatement(MiniCParser::IfelseStatementContext * ctx)
+{
+    // 识别文法产生式 ifelseExpr
+    return visitIfelseExpr(ctx->ifelseExpr());
+}
+/// @brief 非终结运算符ifelseExpr的遍历
+/// @param ctx CST上下文
+/// @return AST的节点
+std::any MiniCCSTVisitor::visitIfelseExpr(MiniCParser::IfelseExprContext * ctx)
+{
+    // ifelseExpr: T_IF T_L_PAREN expr T_R_PAREN block (T_ELSE block)?;
+
+    // type_attr ifelseType{BasicType::TYPE_VOID, (int64_t) ctx->T_IF()->getSymbol()->getLine()};
+
+    // 创建 cond 节点
+    auto cond = std::any_cast<ast_node *>(visitExpr(ctx->expr()));
+    // 创建 true 节点，一定有
+    auto s_true = std::any_cast<ast_node *>(visitBlock(ctx->block()[0]));
+
+    // 创建 ifelse AST节点
+    auto ifelseNode = ast_node::New(ast_operator_type::AST_OP_IF_ELSE, nullptr);
+    // 添加cond节点和s_true节点
+    ifelseNode->insert_son_node(cond);
+    ifelseNode->insert_son_node(s_true);
+
+    // 如果有else，即有s_false节点，那么也添加进去
+    if (ctx->T_ELSE()) {
+        auto s_false = std::any_cast<ast_node *>(visitBlock(ctx->block()[1]));
+        ifelseNode->insert_son_node(s_false);
+    }
+
+    return ifelseNode;
 }
