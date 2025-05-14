@@ -15,6 +15,7 @@
 /// <tr><td>2025-05-05 <td>1.2     <td>weijiachao  <td>增加求负、乘除、取余
 /// </table>
 ///
+#include <cstddef>
 #include <cstdint>
 #include <cstdio>
 #include <unordered_map>
@@ -57,6 +58,7 @@ IRGenerator::IRGenerator(ast_node * _root, Module * _module) : root(_root), modu
     /* 语句 */
     ast2ir_handlers[ast_operator_type::AST_OP_ASSIGN] = &IRGenerator::ir_assign;
     ast2ir_handlers[ast_operator_type::AST_OP_RETURN] = &IRGenerator::ir_return;
+    ast2ir_handlers[ast_operator_type::AST_OP_IF_ELSE] = &IRGenerator::ir_ifelse;
 
     /* 函数调用 */
     ast2ir_handlers[ast_operator_type::AST_OP_FUNC_CALL] = &IRGenerator::ir_function_call;
@@ -767,6 +769,58 @@ bool IRGenerator::ir_variable_declare(ast_node * node)
     // TODO 这里可强化类型等检查
 
     node->val = module->newVarValue(node->sons[0]->type, node->sons[1]->name);
+
+    return true;
+}
+
+/// @brief ifelse节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_ifelse(ast_node * node)
+{
+    // 有2-3个孩子，第一个是判断条件cond(expr node)，第二个是真语句块，第三个是else语句块
+
+    // ast_node * cond_node = node->sons[0];
+    // ast_node * true_node = node->sons[1];
+
+    // ir添加顺序：cond-ir, L1, S1-ir, j-l3, l2, [S2-ir,] L3
+    ast_node * cond = ir_visit_ast_node(node->sons[0]);
+    ast_node * s_true = ir_visit_ast_node(node->sons[1]);
+
+    LabelInstruction * l1 = new LabelInstruction(module->getCurrentFunction());
+    LabelInstruction * l2 = new LabelInstruction(module->getCurrentFunction());
+    LabelInstruction * l3 = new LabelInstruction(module->getCurrentFunction());
+
+    GotoInstruction * goto_l3 = new GotoInstruction(module->getCurrentFunction(), l3);
+
+    // cond-ir
+    node->blockInsts.addInst(cond->blockInsts);
+    // 判断cond, cond=1->j-L1, j-L2
+    // //TODO 目前在编译器中计算，需要将其整合到ir中，用cmp
+    int cond_value = (int) cond->integer_val;
+    bool result = (cond_value != 0);
+    LabelInstruction * cond_target = l1; // 默认跳至真
+    if (!result) {
+        // 如果判断条件cond为0，即条件为假，跳至L2
+        cond_target = l2;
+    }
+    GotoInstruction * cond_goto = new GotoInstruction(module->getCurrentFunction(), cond_target);
+    node->blockInsts.addInst(cond_goto);
+    // L1
+    node->blockInsts.addInst(l1);
+    // S1-ir(true block)
+    node->blockInsts.addInst(s_true->blockInsts);
+    // j-l3
+    node->blockInsts.addInst(goto_l3);
+    // l2
+    node->blockInsts.addInst(l2);
+    // S2-ir (如果有else块)
+    if ((int) node->sons.size() > 2) {
+        ast_node * else_node = ir_visit_ast_node(node->sons[2]);
+        node->blockInsts.addInst(else_node->blockInsts);
+    }
+    // l3  ifelse 出口
+    node->blockInsts.addInst(l3);
 
     return true;
 }
