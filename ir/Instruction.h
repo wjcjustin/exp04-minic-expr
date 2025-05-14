@@ -63,6 +63,9 @@ enum class IRInstOperator : std::int8_t {
     /// @brief 整数取余运算，二元运算
     IRINST_OP_MOD_I,
 
+    /// @brief 逻辑非运算，一元运算
+    IRINST_OP_NOT,
+
     /// @brief 最大指令码，也是无效指令
     IRINST_OP_MAX
 };

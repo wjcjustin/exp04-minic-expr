@@ -93,6 +93,15 @@ protected:
     /// @return 翻译是否成功，true：成功，false：失败
     bool ir_mod(ast_node * node);
 
+    /// @brief 逻辑与AST节点翻译成线性中间IR
+    bool ir_and(ast_node * node);
+
+    /// @brief 逻辑或AST节点翻译成线性中间IR
+    bool ir_or(ast_node * node);
+
+    /// @brief 逻辑非AST节点翻译成线性中间IR
+    bool ir_not(ast_node * node);
+
     /// @brief 赋值AST节点翻译成线性中间IR
     /// @param node AST节点
     /// @return 翻译是否成功，true：成功，false：失败

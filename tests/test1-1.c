@@ -1,8 +1,6 @@
 int main()
 {
-    int a, b;
-    a = 1;
-    b = 0;
-    a = !(0 || !a && -b || 1);
-    return 0;
+    int a;
+    a = 1 + 1 * 2 % 3;
+    return a;
 }
