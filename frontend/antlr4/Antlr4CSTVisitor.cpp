@@ -468,7 +468,7 @@ std::any MiniCCSTVisitor::visitUnaryOp(MiniCParser::UnaryOpContext * ctx)
     if (ctx->T_NOT()) {
         return ast_operator_type::AST_OP_NOT;
     } else {
-        return ast_operator_type::AST_OP_SUB;
+        return ast_operator_type::AST_OP_NEG;
     }
 }
 

@@ -22,10 +22,12 @@
 #include <vector>
 
 #include "AST.h"
+#include "BranchInstruction.h"
 #include "Common.h"
 #include "Function.h"
 #include "IRCode.h"
 #include "IRGenerator.h"
+#include "Instruction.h"
 #include "IntegerType.h"
 #include "Module.h"
 #include "EntryInstruction.h"
@@ -788,9 +790,6 @@ bool IRGenerator::ir_ifelse(ast_node * node)
 {
     // 有2-3个孩子，第一个是判断条件cond(expr node)，第二个是真语句块，第三个是else语句块
 
-    // ast_node * cond_node = node->sons[0];
-    // ast_node * true_node = node->sons[1];
-
     // ir添加顺序：cond-ir, L1, S1-ir, j-l3, l2, [S2-ir,] L3
     ast_node * cond = ir_visit_ast_node(node->sons[0]);
     ast_node * s_true = ir_visit_ast_node(node->sons[1]);
@@ -802,18 +801,22 @@ bool IRGenerator::ir_ifelse(ast_node * node)
     GotoInstruction * goto_l3 = new GotoInstruction(module->getCurrentFunction(), l3);
 
     // cond-ir
+    // 判断cond, cond==1->j-L1, j-L2
+    // 创建一个常量，值为1，用于比较
+    // ConstInt * val_1 = module->newConstInt(1);
+    // // 相等节点
+    // BinaryInstruction * cmp_cond = new BinaryInstruction(module->getCurrentFunction(),
+    //                                                      IRInstOperator::IRINST_OP_EQUAL,
+    //                                                      cond->val,
+    //                                                      val_1,
+    //                                                      IntegerType::getTypeBool());
+    // // TODO 先去实现有条件跳转 Instruction
+
     node->blockInsts.addInst(cond->blockInsts);
-    // 判断cond, cond=1->j-L1, j-L2
-    // //TODO 目前在编译器中计算，需要将其整合到ir中，用cmp
-    int cond_value = (int) cond->integer_val;
-    bool result = (cond_value != 0);
-    LabelInstruction * cond_target = l1; // 默认跳至真
-    if (!result) {
-        // 如果判断条件cond为0，即条件为假，跳至L2
-        cond_target = l2;
-    }
-    GotoInstruction * cond_goto = new GotoInstruction(module->getCurrentFunction(), cond_target);
-    node->blockInsts.addInst(cond_goto);
+    BranchInstruction * br_inst = new BranchInstruction(module->getCurrentFunction(), cond->val, l1, l2);
+    // node->blockInsts.addInst(cmp_cond);
+    node->blockInsts.addInst(br_inst);
+
     // L1
     node->blockInsts.addInst(l1);
     // S1-ir(true block)

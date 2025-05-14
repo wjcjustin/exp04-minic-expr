@@ -81,6 +81,9 @@ enum class IRInstOperator : std::int8_t {
     /// @brief 小于等于，二元关系运算
     IRINST_OP_LESSER_EQUAL,
 
+    /// @brief 条件跳转
+    IRINST_OP_BRANCH,
+
     /// @brief 最大指令码，也是无效指令
     IRINST_OP_MAX
 };

@@ -173,6 +173,8 @@ set(IR_SRCS
     ir/Instructions/MoveInstruction.h
     ir/Instructions/NegUnaryInstruction.cpp
     ir/Instructions/NegUnaryInstruction.h
+    ir/Instructions/BranchInstruction.cpp
+    ir/Instructions/BranchInstruction.h
     ir/Types/VoidType.h
     ir/Types/VoidType.cpp
     ir/Types/LabelType.h
