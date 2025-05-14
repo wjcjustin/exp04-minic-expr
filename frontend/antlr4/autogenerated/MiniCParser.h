@@ -24,10 +24,10 @@ public:
     RuleCompileUnit = 0, RuleFuncDef = 1, RuleBlock = 2, RuleBlockItemList = 3, 
     RuleBlockItem = 4, RuleVarDecl = 5, RuleBasicType = 6, RuleVarDef = 7, 
     RuleStatement = 8, RuleExpr = 9, RuleArithmeticExp = 10, RuleRelationalBinaryExp = 11, 
-    RuleLogicBinaryExp = 12, RuleAddExp = 13, RuleMulExp = 14, RuleAddOp = 15, 
-    RuleMulOp = 16, RuleRelationalBinaryOp = 17, RuleLogicBinaryOp = 18, 
-    RuleNormalUnaryExp = 19, RuleUnaryOp = 20, RuleUnaryExp = 21, RulePrimaryExp = 22, 
-    RuleRealParamList = 23, RuleLVal = 24
+    RuleLogicBinaryExp = 12, RuleLogicAndExp = 13, RuleAddExp = 14, RuleMulExp = 15, 
+    RuleAddOp = 16, RuleMulOp = 17, RuleRelationalBinaryOp = 18, RuleLogicBinaryOp = 19, 
+    RuleNormalUnaryExp = 20, RuleUnaryOp = 21, RuleUnaryExp = 22, RulePrimaryExp = 23, 
+    RuleRealParamList = 24, RuleLVal = 25
   };
 
   explicit MiniCParser(antlr4::TokenStream *input);
@@ -60,6 +60,7 @@ public:
   class ArithmeticExpContext;
   class RelationalBinaryExpContext;
   class LogicBinaryExpContext;
+  class LogicAndExpContext;
   class AddExpContext;
   class MulExpContext;
   class AddOpContext;
@@ -297,10 +298,10 @@ public:
   public:
     LogicBinaryExpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    std::vector<RelationalBinaryExpContext *> relationalBinaryExp();
-    RelationalBinaryExpContext* relationalBinaryExp(size_t i);
-    std::vector<LogicBinaryOpContext *> logicBinaryOp();
-    LogicBinaryOpContext* logicBinaryOp(size_t i);
+    std::vector<LogicAndExpContext *> logicAndExp();
+    LogicAndExpContext* logicAndExp(size_t i);
+    std::vector<antlr4::tree::TerminalNode *> T_OR();
+    antlr4::tree::TerminalNode* T_OR(size_t i);
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -308,6 +309,22 @@ public:
   };
 
   LogicBinaryExpContext* logicBinaryExp();
+
+  class  LogicAndExpContext : public antlr4::ParserRuleContext {
+  public:
+    LogicAndExpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    std::vector<RelationalBinaryExpContext *> relationalBinaryExp();
+    RelationalBinaryExpContext* relationalBinaryExp(size_t i);
+    std::vector<antlr4::tree::TerminalNode *> T_AND();
+    antlr4::tree::TerminalNode* T_AND(size_t i);
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  LogicAndExpContext* logicAndExp();
 
   class  AddExpContext : public antlr4::ParserRuleContext {
   public:

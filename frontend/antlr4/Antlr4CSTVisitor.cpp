@@ -203,20 +203,45 @@ std::any MiniCCSTVisitor::visitExpr(MiniCParser::ExprContext * ctx)
 }
 
 /// @brief 非终结符 logicBinaryExp 的遍历
-std::any MiniCCSTVisitor::visitLogicBinaryExp(MiniCParser::LogicBinaryExpContext * ctx)
+std::any MiniCCSTVisitor::visitLogicBinaryExp(MiniCParser::LogicBinaryExpContext * ctx) // TODO
 {
-    // logicBinaryExp: relationalBinaryExp(logicBinaryOp relationalBinaryExp) *;
-    if (ctx->logicBinaryOp().empty()) {
+    // logicBinaryExp:	logicAndExp (T_OR logicAndExp)*
+    if (ctx->T_OR().empty()) {
+        // 没有逻辑运算符，识别第一个关系表达式
+        return visitLogicAndExp(ctx->logicAndExp()[0]);
+    }
+
+    ast_node *left, *right;
+
+    auto opsSize = (int) ctx->T_OR().size();
+
+    for (int k = 0; k < opsSize; k++) {
+
+        if (k == 0) {
+            left = std::any_cast<ast_node *>(visitLogicAndExp(ctx->logicAndExp()[k]));
+        }
+        right = std::any_cast<ast_node *>(visitLogicAndExp(ctx->logicAndExp()[k + 1]));
+
+        // 新建逻辑表达式节点作为下一个运算符的做操作符
+        left = ast_node::New(ast_operator_type::AST_OP_OR, left, right, nullptr);
+    }
+
+    return left;
+}
+
+std::any MiniCCSTVisitor::visitLogicAndExp(MiniCParser::LogicAndExpContext * ctx) // TODO
+{
+    // logicAndExp: relationalBinaryExp (T_AND relationalBinaryExp)*;
+    if (ctx->T_AND().empty()) {
         // 没有逻辑运算符，识别第一个关系表达式
         return visitRelationalBinaryExp(ctx->relationalBinaryExp()[0]);
     }
 
     ast_node *left, *right;
 
-    auto opsCtxVec = ctx->logicBinaryOp();
+    auto opsSize = (int) ctx->T_AND().size();
 
-    for (int k = 0; k < (int) opsCtxVec.size(); k++) {
-        ast_operator_type op = std::any_cast<ast_operator_type>(visitLogicBinaryOp(opsCtxVec[k]));
+    for (int k = 0; k < opsSize; k++) {
 
         if (k == 0) {
             left = std::any_cast<ast_node *>(visitRelationalBinaryExp(ctx->relationalBinaryExp()[k]));
@@ -224,23 +249,10 @@ std::any MiniCCSTVisitor::visitLogicBinaryExp(MiniCParser::LogicBinaryExpContext
         right = std::any_cast<ast_node *>(visitRelationalBinaryExp(ctx->relationalBinaryExp()[k + 1]));
 
         // 新建逻辑表达式节点作为下一个运算符的做操作符
-        left = ast_node::New(op, left, right, nullptr);
+        left = ast_node::New(ast_operator_type::AST_OP_AND, left, right, nullptr);
     }
 
     return left;
-}
-
-/// @brief 非终结运算符LogicBinaryOp的遍历
-/// @param ctx CST上下文
-std::any MiniCCSTVisitor::visitLogicBinaryOp(MiniCParser::LogicBinaryOpContext * ctx)
-{
-    // 识别的文法产生式：logicBinaryOp: T_AND | T_OR;
-
-    if (ctx->T_AND()) {
-        return ast_operator_type::AST_OP_AND;
-    } else {
-        return ast_operator_type::AST_OP_OR;
-    }
 }
 
 /// @brief 非终结符 logicBinaryExp 的遍历

@@ -93,8 +93,8 @@ protected:
     /// @return AST的节点
     std::any visitLogicBinaryExp(MiniCParser::LogicBinaryExpContext * ctx) override;
 
-    /// @brief 非终结运算符LogicBinaryExp的遍历
-    std::any visitLogicBinaryOp(MiniCParser::LogicBinaryOpContext * ctx) override;
+    /// @brief 非终结运算符LogicAndExp的遍历
+    std::any visitLogicAndExp(MiniCParser::LogicAndExpContext * ctx) override;
 
     /// @brief 非终结运算符LogicRelationalExp的遍历
     std::any visitRelationalBinaryOp(MiniCParser::RelationalBinaryOpContext * ctx) override;
@@ -167,7 +167,7 @@ protected:
     /// @param ctx CST上下文
     /// @return std::any AST的节点
     ///
-    std::any visitUnaryOp(MiniCParser::UnaryOpContext *ctx) override;
+    std::any visitUnaryOp(MiniCParser::UnaryOpContext * ctx) override;
 
     ///
     /// @brief 非终结符unaryExp的分析

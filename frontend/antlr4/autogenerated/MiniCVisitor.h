@@ -51,6 +51,8 @@ public:
 
     virtual std::any visitLogicBinaryExp(MiniCParser::LogicBinaryExpContext *context) = 0;
 
+    virtual std::any visitLogicAndExp(MiniCParser::LogicAndExpContext *context) = 0;
+
     virtual std::any visitAddExp(MiniCParser::AddExpContext *context) = 0;
 
     virtual std::any visitMulExp(MiniCParser::MulExpContext *context) = 0;

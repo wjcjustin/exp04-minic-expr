@@ -79,6 +79,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitLogicAndExp(MiniCParser::LogicAndExpContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitAddExp(MiniCParser::AddExpContext *ctx) override {
     return visitChildren(ctx);
   }

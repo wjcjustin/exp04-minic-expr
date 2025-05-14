@@ -53,9 +53,10 @@ arithmeticExp: addExp;
 relationalBinaryExp:
 	arithmeticExp (relationalBinaryOp arithmeticExp)*;
 
-// 二元逻辑表达式
-logicBinaryExp:
-	relationalBinaryExp (logicBinaryOp relationalBinaryExp)*;
+// 二元逻辑表达式，优先级 && > ||
+logicBinaryExp:	logicAndExp (T_OR logicAndExp)*;
+
+logicAndExp: relationalBinaryExp (T_AND relationalBinaryExp)*;
 
 // 加减表达式，操作数为乘除取余表达式，表示乘除取余操作优先级高于加减
 addExp: mulExp (addOp mulExp)*;
@@ -80,12 +81,6 @@ relationalBinaryOp:
 
 // 二元布尔运算符
 logicBinaryOp: T_AND | T_OR;
-
-// // 求负表达式 求负表达式可以嵌套
-// negUnaryExp: T_SUB (primaryExp | normalUnaryExp);
-
-// // 逻辑非表达式
-// logicNotUnaryExp: T_NOT (primaryExp | normalUnaryExp);
 
 // 通用一元表达式
 normalUnaryExp: unaryOp (primaryExp | normalUnaryExp);
