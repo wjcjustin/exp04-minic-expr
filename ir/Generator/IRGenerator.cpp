@@ -65,6 +65,11 @@ IRGenerator::IRGenerator(ast_node * _root, Module * _module) : root(_root), modu
     ast2ir_handlers[ast_operator_type::AST_OP_EQUAL] = &IRGenerator::ir_equal;
     ast2ir_handlers[ast_operator_type::AST_OP_NOT_EQUAL] = &IRGenerator::ir_not_equal;
 
+    /* 逻辑运算， 与、或、非 */
+    ast2ir_handlers[ast_operator_type::AST_OP_AND] = &IRGenerator::ir_and;
+    ast2ir_handlers[ast_operator_type::AST_OP_NOT] = &IRGenerator::ir_not;
+    ast2ir_handlers[ast_operator_type::AST_OP_OR] = &IRGenerator::ir_or;
+
     /* 语句 */
     ast2ir_handlers[ast_operator_type::AST_OP_ASSIGN] = &IRGenerator::ir_assign;
     ast2ir_handlers[ast_operator_type::AST_OP_RETURN] = &IRGenerator::ir_return;
@@ -622,6 +627,50 @@ bool IRGenerator::ir_neg(ast_node * node)
 
     return true;
 }
+
+/*
+/// @brief 逻辑与AST节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_and(ast_node * node)
+{
+    ast_node * src1_node = node->sons[0];
+    ast_node * src2_node = node->sons[1];
+
+    // 加法节点，左结合，先计算左节点，后计算右节点
+
+    // 加法的左边操作数
+    ast_node * left = ir_visit_ast_node(src1_node);
+    if (!left) {
+        // 某个变量没有定值
+        return false;
+    }
+
+    // 加法的右边操作数
+    ast_node * right = ir_visit_ast_node(src2_node);
+    if (!right) {
+        // 某个变量没有定值
+        return false;
+    }
+
+    // 这里只处理整型的数据，如需支持实数，则需要针对类型进行处理
+
+    BinaryInstruction * addInst = new BinaryInstruction(module->getCurrentFunction(),
+                                                        IRInstOperator::IRINST_OP_ADD_I,
+                                                        left->val,
+                                                        right->val,
+                                                        IntegerType::getTypeInt());
+
+    // 创建临时变量保存IR的值，以及线性IR指令
+    node->blockInsts.addInst(left->blockInsts);
+    node->blockInsts.addInst(right->blockInsts);
+    node->blockInsts.addInst(addInst);
+
+    node->val = addInst;
+
+    return true;
+}
+*/
 
 /// @brief 赋值AST节点翻译成线性中间IR
 /// @param node AST节点

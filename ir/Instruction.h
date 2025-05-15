@@ -84,6 +84,9 @@ enum class IRInstOperator : std::int8_t {
     /// @brief 条件跳转
     IRINST_OP_BRANCH,
 
+    /// @brief 逻辑非运算，一元运算
+    IRINST_OP_NOT,
+
     /// @brief 最大指令码，也是无效指令
     IRINST_OP_MAX
 };
