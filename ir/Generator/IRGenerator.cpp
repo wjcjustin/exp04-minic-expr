@@ -67,9 +67,9 @@ IRGenerator::IRGenerator(ast_node * _root, Module * _module) : root(_root), modu
     ast2ir_handlers[ast_operator_type::AST_OP_NOT_EQUAL] = &IRGenerator::ir_not_equal;
 
     /* 逻辑运算， 与、或、非 */
-    ast2ir_handlers[ast_operator_type::AST_OP_AND] = &IRGenerator::ir_and;
-    ast2ir_handlers[ast_operator_type::AST_OP_NOT] = &IRGenerator::ir_not;
-    ast2ir_handlers[ast_operator_type::AST_OP_OR] = &IRGenerator::ir_or;
+    // ast2ir_handlers[ast_operator_type::AST_OP_AND] = &IRGenerator::ir_and;
+    // ast2ir_handlers[ast_operator_type::AST_OP_NOT] = &IRGenerator::ir_not;
+    // ast2ir_handlers[ast_operator_type::AST_OP_OR] = &IRGenerator::ir_or;
 
     /* 语句 */
     ast2ir_handlers[ast_operator_type::AST_OP_ASSIGN] = &IRGenerator::ir_assign;
@@ -965,92 +965,131 @@ bool IRGenerator::ir_not_equal(ast_node * node)
 /// @brief 逻辑或 节点翻译成线性中间IR &&
 /// @param node AST节点
 /// @return 翻译是否成功，true：成功，false：失败
-bool IRGenerator::ir_or(ast_node * node) // TODO 短路求值
+bool IRGenerator::ir_or(ast_node * node, LabelInstruction * l1, LabelInstruction * l2) // TODO 短路求值
 {
     ast_node * src1_node = node->sons[0];
     ast_node * src2_node = node->sons[1];
+
+    // or 节点真假入口：l1, l2
+
+    // 创建 l3
+    // 根据左边的值，跳转 l1/l3
+    // 插入 l3
+    // 根据右边的值，跳转 l1/l2
+
+    LabelInstruction * l3 = new LabelInstruction(module->getCurrentFunction());
 
     // 左结合，先算左边的值
     // 需要短路求值
 
     // 左边操作数
-    ast_node * left = ir_visit_ast_node(src1_node);
-    if (!left) {
+    ast_node * left = src1_node;
+    bool left_ok = ir_cond(src1_node, l1, l3);
+    if (!left_ok) {
         // 某个变量没有定值
         return false;
     }
 
     // 右边操作数
-    ast_node * right = ir_visit_ast_node(src2_node);
-    if (!right) {
+    ast_node * right = src2_node;
+    bool right_ok = ir_cond(src2_node, l1, l2);
+    if (!right_ok) {
         // 某个变量没有定值
         return false;
     }
 
-    // 标签：l_true, l_check_right, l_false, l_end
-    LabelInstruction * l_true = new LabelInstruction(module->getCurrentFunction());
-    LabelInstruction * l_check_right = new LabelInstruction(module->getCurrentFunction());
-    LabelInstruction * l_false = new LabelInstruction(module->getCurrentFunction());
-    LabelInstruction * l_end = new LabelInstruction(module->getCurrentFunction());
+    // BranchInstruction * br_l = new BranchInstruction(module->getCurrentFunction(), left->val, l1, l3);
+    // BranchInstruction * br_r = new BranchInstruction(module->getCurrentFunction(), right->val, l1, l2);
 
-    BranchInstruction * b_left = new BranchInstruction(module->getCurrentFunction(), left->val, l_true, l_check_right);
-    BranchInstruction * b_right = new BranchInstruction(module->getCurrentFunction(), right->val, l_true, l_false);
-    GotoInstruction * goto_end = new GotoInstruction(module->getCurrentFunction(), l_end);
-
-    ConstInt * val_1 = module->newConstInt(1);
-    ConstInt * val_0 = module->newConstInt(0);
-    // 保存结果表达式的中间变量，默认为1，如果表达式为假则额外调用赋值为0
-    UnaryInstruction * exp_tmp_value = new UnaryInstruction(module->getCurrentFunction(),
-                                                            IRInstOperator::IRINST_TMP_VALUE,
-                                                            val_1,
-                                                            IntegerType::getTypeBool());
-    node->blockInsts.addInst(exp_tmp_value);
-
-    // 操作逻辑：如果左边为真，则表达式的值为1，跳出；若为假，判断右边，为真，赋值1，否则跳至假，赋值0，跳出
-    // 顺序：左操作数, 条件跳转(left, l_true, l_check_right), l_true, check_right, l_false, l_end
-    // left
     node->blockInsts.addInst(left->blockInsts);
-    // branch_left
-    node->blockInsts.addInst(b_left);
-    // label true
-    node->blockInsts.addInst(l_true);
-    // store 1，表达式的值默认为1，因此什么都不做
-    // goto end
-    node->blockInsts.addInst(goto_end);
-    // label check_right
-    node->blockInsts.addInst(l_check_right);
-    // right
+    // node->blockInsts.addInst(br_l);
+    node->blockInsts.addInst(l3);
     node->blockInsts.addInst(right->blockInsts);
-    // branch_right
-    node->blockInsts.addInst(b_right);
-    // label false
-    node->blockInsts.addInst(l_false);
-    // store 0，调用赋值语句将临时变量赋值为0
-    MoveInstruction * store_0 = new MoveInstruction(module->getCurrentFunction(), exp_tmp_value, val_0);
-    node->blockInsts.addInst(store_0);
-    // goto end
-    node->blockInsts.addInst(goto_end);
-    // label end
-    node->blockInsts.addInst(l_end);
-
-    // 创建临时变量保存IR的值，以及线性IR指令
-
-    node->val = exp_tmp_value;
-    // free(exp_tmp_value);
-    // free(store_0);
-    //  TODO do not free others !!!...
+    // node->blockInsts.addInst(br_r);
 
     return true;
 }
 
-bool IRGenerator::ir_and(ast_node * node)
+bool IRGenerator::ir_and(ast_node * node, LabelInstruction * l1, LabelInstruction * l2)
 {
+    ast_node * src1_node = node->sons[0];
+    ast_node * src2_node = node->sons[1];
+
+    LabelInstruction * l3 = new LabelInstruction(module->getCurrentFunction());
+
+    // and 节点真假入口：l1, l2
+
+    // 创建 l3
+    // 根据左边的值，跳转 l3/l2
+    // 插入 l3
+    // 根据右边的值，跳转 l1/l2
+
+    // 左结合，先算左边的值
+    // 需要短路求值
+
+    // 左边操作数
+    ast_node * left = src1_node;
+    bool left_ok = ir_cond(src1_node, l3, l2);
+    if (!left_ok) {
+        // 某个变量没有定值
+        return false;
+    }
+
+    // 右边操作数
+    ast_node * right = src2_node;
+    bool right_ok = ir_cond(src2_node, l1, l2);
+    if (!right_ok) {
+        // 某个变量没有定值
+        return false;
+    }
+
+    // BranchInstruction * br_l = new BranchInstruction(module->getCurrentFunction(), left->val, l3, l2);
+    // BranchInstruction * br_r = new BranchInstruction(module->getCurrentFunction(), right->val, l1, l2);
+
+    node->blockInsts.addInst(left->blockInsts);
+    // node->blockInsts.addInst(br_l);
+    node->blockInsts.addInst(l3);
+    node->blockInsts.addInst(right->blockInsts);
+    // node->blockInsts.addInst(br_r);
+
     return true;
 }
 
-bool IRGenerator::ir_not(ast_node * node)
+bool IRGenerator::ir_not(ast_node * node, LabelInstruction * l1, LabelInstruction * l2)
 {
+    ast_node * src_node = node->sons[0];
+    // not 节点真假入口：l1, l2
+
+    // 根据 son 的值，跳转 l2/l1 即可
+
+    // 操作数
+    ast_node * son = src_node;
+    bool son_ok = ir_cond(src_node, l2, l1);
+    if (!son_ok) {
+        // 某个变量没有定值
+        return false;
+    }
+
+    // BranchInstruction * br_s = new BranchInstruction(module->getCurrentFunction(), son->val, l2, l1);
+
+    node->blockInsts.addInst(son->blockInsts);
+    // node->blockInsts.addInst(br_s);
+
     return true;
+}
+
+bool IRGenerator::ir_logic(ast_node * node, ast_operator_type op, LabelInstruction * l_true, LabelInstruction * l_flase)
+{
+    switch (op) {
+        case ast_operator_type::AST_OP_AND:
+            return ir_and(node, l_true, l_flase);
+        case ast_operator_type::AST_OP_OR:
+            return ir_or(node, l_true, l_flase);
+        case ast_operator_type::AST_OP_NOT:
+            return ir_not(node, l_true, l_flase);
+        default:
+            return true;
+    }
 }
 
 /// @brief cond AST节点的翻译
@@ -1058,22 +1097,44 @@ bool IRGenerator::ir_not(ast_node * node)
 bool IRGenerator::ir_cond(ast_node * node, LabelInstruction * l_true, LabelInstruction * l_flase)
 {
 
-    ast_node * son = node->sons[0];
-    // 判断孩子节点是否为逻辑表达式
+    // ast_node * son = node->sons[0];
+    ast_node * son = node;
+    // 判断 节点是否为逻辑表达式
     ast_operator_type son_type = son->node_type;
-    if (son_type == ast_operator_type::AST_OP_AND) {
-        ;
-    } else if (son_type == ast_operator_type::AST_OP_OR) {
-        ;
-    } else if (son_type == ast_operator_type::AST_OP_NOT) {
-        ;
-    } else {
-        // 条件不是逻辑表达式，是普通值
-        ast_node * sonn = ir_visit_ast_node(son);
-        BranchInstruction * br = new BranchInstruction(module->getCurrentFunction(), sonn->val, l_true, l_flase);
-        node->blockInsts.addInst(sonn->blockInsts);
-        node->blockInsts.addInst(br);
+    switch (son_type) {
+        case ast_operator_type::AST_OP_AND:
+        case ast_operator_type::AST_OP_OR:
+        case ast_operator_type::AST_OP_NOT: {
+            // 传入 cond 的真假跳转目标，让逻辑语句内部去实现跳转
+            bool result = ir_logic(son, son_type, l_true, l_flase);
+            if (!result) {
+                return false;
+            }
+            // node->blockInsts.addInst(son->blockInsts); // son 就是 node，不用重复添加
+            break;
+        }
+        default: { // 条件不是逻辑表达式，是普通值表达式
+            ir_visit_ast_node(son);
+            // ast_node * sonn = ir_visit_ast_node(son);
+            BranchInstruction * br = new BranchInstruction(module->getCurrentFunction(), son->val, l_true, l_flase);
+            // node->blockInsts.addInst(sonn->blockInsts); // son 就是 node，不用重复添加
+            node->blockInsts.addInst(br);
+            break;
+        }
     }
+    // if (son_type == ast_operator_type::AST_OP_AND) {
+    //     ;
+    // } else if (son_type == ast_operator_type::AST_OP_OR) {
+    //     ;
+    // } else if (son_type == ast_operator_type::AST_OP_NOT) {
+    //     ;
+    // } else {
+    //     // 条件不是逻辑表达式，是普通值
+    //     ast_node * sonn = ir_visit_ast_node(son);
+    //     BranchInstruction * br = new BranchInstruction(module->getCurrentFunction(), sonn->val, l_true, l_flase);
+    //     node->blockInsts.addInst(sonn->blockInsts);
+    //     node->blockInsts.addInst(br);
+    // }
 
     return true;
 }

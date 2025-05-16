@@ -680,6 +680,7 @@ std::any MiniCCSTVisitor::visitCond(MiniCParser::CondContext * ctx)
 {
 
     ast_node * son = std::any_cast<ast_node *>(visitExpr(ctx->expr()));
-    ast_node * cond_node = create_contain_node(ast_operator_type::AST_OP_COND, son);
-    return cond_node;
+    // ast_node * cond_node = create_contain_node(ast_operator_type::AST_OP_COND, son);
+    // return cond_node;
+    return son;
 }
