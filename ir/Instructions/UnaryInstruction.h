@@ -1,5 +1,5 @@
 ///
-/// @file NegUnaryInstruction.h
+/// @file UnaryInstruction.h
 /// @brief 一元指令
 ///
 /// @author weijiachao (weijiachao@mail.nwpu.edu.cn)

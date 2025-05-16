@@ -1,5 +1,5 @@
 ///
-/// @file NegUnaryInstruction.cpp
+/// @file UnaryInstruction.cpp
 /// @brief 一元指令
 ///
 /// @author weijiachao (weijiachao@mail.nwpu.edu.cn)
@@ -35,9 +35,14 @@ void UnaryInstruction::toString(std::string & str)
 {
 
     Value * src = getOperand(0);
-    if (op == IRInstOperator::IRINST_OP_NEG_I) {
+    auto opCode = getOp();
+    if (opCode == IRInstOperator::IRINST_OP_NEG_I) {
         str = getIRName() + " = neg " + src->getIRName();
-    } else {
+    } else if (opCode == IRInstOperator::IRINST_OP_NOT) {
         str = getIRName() + " = not " + src->getIRName();
+    } else if (opCode == IRInstOperator::IRINST_TMP_VALUE) {
+        str = getIRName() + " = " + src->getIRName();
+    } else {
+        str = "Unknown UnaryInstruction";
     }
 }

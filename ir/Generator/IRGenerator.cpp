@@ -38,6 +38,7 @@
 #include "MoveInstruction.h"
 #include "GotoInstruction.h"
 #include "NegUnaryInstruction.h"
+#include "UnaryInstruction.h"
 
 /// @brief 构造函数
 /// @param _root AST的根
@@ -966,4 +967,95 @@ bool IRGenerator::ir_equal(ast_node * node)
 bool IRGenerator::ir_not_equal(ast_node * node)
 {
     return ir_relation(node, IRInstOperator::IRINST_OP_NOT_EQUAL);
+}
+
+/// @brief 逻辑或 节点翻译成线性中间IR &&
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_or(ast_node * node) // TODO 短路求值
+{
+    ast_node * src1_node = node->sons[0];
+    ast_node * src2_node = node->sons[1];
+
+    // 左结合，先算左边的值
+    // 需要短路求值
+
+    // 左边操作数
+    ast_node * left = ir_visit_ast_node(src1_node);
+    if (!left) {
+        // 某个变量没有定值
+        return false;
+    }
+
+    // 右边操作数
+    ast_node * right = ir_visit_ast_node(src2_node);
+    if (!right) {
+        // 某个变量没有定值
+        return false;
+    }
+
+    // 标签：l_true, l_check_right, l_false, l_end
+    LabelInstruction * l_true = new LabelInstruction(module->getCurrentFunction());
+    LabelInstruction * l_check_right = new LabelInstruction(module->getCurrentFunction());
+    LabelInstruction * l_false = new LabelInstruction(module->getCurrentFunction());
+    LabelInstruction * l_end = new LabelInstruction(module->getCurrentFunction());
+
+    BranchInstruction * b_left = new BranchInstruction(module->getCurrentFunction(), left->val, l_true, l_check_right);
+    BranchInstruction * b_right = new BranchInstruction(module->getCurrentFunction(), right->val, l_true, l_false);
+    GotoInstruction * goto_end = new GotoInstruction(module->getCurrentFunction(), l_end);
+
+    ConstInt * val_1 = module->newConstInt(1);
+    ConstInt * val_0 = module->newConstInt(0);
+    // 保存结果表达式的中间变量，默认为1，如果表达式为假则额外调用赋值为0
+    UnaryInstruction * exp_tmp_value = new UnaryInstruction(module->getCurrentFunction(),
+                                                            IRInstOperator::IRINST_TMP_VALUE,
+                                                            val_1,
+                                                            IntegerType::getTypeBool());
+    node->blockInsts.addInst(exp_tmp_value);
+
+    // 操作逻辑：如果左边为真，则表达式的值为1，跳出；若为假，判断右边，为真，赋值1，否则跳至假，赋值0，跳出
+    // 顺序：左操作数, 条件跳转(left, l_true, l_check_right), l_true, check_right, l_false, l_end
+    // left
+    node->blockInsts.addInst(left->blockInsts);
+    // branch_left
+    node->blockInsts.addInst(b_left);
+    // label true
+    node->blockInsts.addInst(l_true);
+    // store 1，表达式的值默认为1，因此什么都不做
+    // goto end
+    node->blockInsts.addInst(goto_end);
+    // label check_right
+    node->blockInsts.addInst(l_check_right);
+    // right
+    node->blockInsts.addInst(right->blockInsts);
+    // branch_right
+    node->blockInsts.addInst(b_right);
+    // label false
+    node->blockInsts.addInst(l_false);
+    // store 0，调用赋值语句将临时变量赋值为0
+    MoveInstruction * store_0 = new MoveInstruction(module->getCurrentFunction(), exp_tmp_value, val_0);
+    node->blockInsts.addInst(store_0);
+    // goto end
+    node->blockInsts.addInst(goto_end);
+    // label end
+    node->blockInsts.addInst(l_end);
+
+    // 创建临时变量保存IR的值，以及线性IR指令
+
+    node->val = exp_tmp_value;
+    // free(exp_tmp_value);
+    // free(store_0);
+    //  TODO do not free others !!!...
+
+    return true;
+}
+
+bool IRGenerator::ir_and(ast_node * node)
+{
+    return true;
+}
+
+bool IRGenerator::ir_not(ast_node * node)
+{
+    return true;
 }
