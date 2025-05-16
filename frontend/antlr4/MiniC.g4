@@ -23,7 +23,11 @@ block: T_L_BRACE blockItemList? T_R_BRACE;
 blockItemList: blockItem+;
 
 // 每个Item可以是一个语句，或者变量声明语句
-blockItem: statement | varDecl;
+blockItem:
+	statement
+	| varDecl
+	| breakStatement
+	| continueStatement;
 
 // 变量声明，目前不支持变量含有初值
 varDecl: basicType varDef (T_COMMA varDef)* T_SEMICOLON;
@@ -51,6 +55,9 @@ cond: expr;
 
 // while 语句块
 whileExpr: T_WHILE T_L_PAREN cond T_R_PAREN block;
+
+breakStatement: T_BREAK T_SEMICOLON;
+continueStatement: T_CONTINUE T_SEMICOLON;
 
 // 表达式文法 expr : 支持逻辑运算、关系运算、算术运算
 expr: logicBinaryExp;
@@ -154,6 +161,8 @@ T_VOID: 'void';
 T_IF: 'if';
 T_ELSE: 'else';
 T_WHILE: 'while';
+T_BREAK: 'break';
+T_CONTINUE: 'continue';
 
 T_ID: [a-zA-Z_][a-zA-Z0-9_]*;
 T_DIGIT: '0' | [1-9][0-9]*;

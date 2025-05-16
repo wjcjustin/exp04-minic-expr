@@ -153,6 +153,10 @@ std::any MiniCCSTVisitor::visitBlockItem(MiniCParser::BlockItemContext * ctx)
         return visitStatement(ctx->statement());
     } else if (ctx->varDecl()) {
         return visitVarDecl(ctx->varDecl());
+    } else if (ctx->breakStatement()) {
+        return visitBreakStatement(ctx->breakStatement());
+    } else if (ctx->continueStatement()) {
+        return visitContinueStatement(ctx->continueStatement());
     }
 
     return nullptr;
@@ -714,4 +718,24 @@ std::any MiniCCSTVisitor::visitWhileExpr(MiniCParser::WhileExprContext * ctx)
     whileNode->insert_son_node(body);
 
     return whileNode;
+}
+
+std::any MiniCCSTVisitor::visitBreakStatement(MiniCParser::BreakStatementContext * ctx)
+{
+    // breakStatement: T_BREAK T_SEMICOLON;
+
+    // 声明语句节点
+    ast_node * break_node = create_contain_node(ast_operator_type::AST_OP_BREAK);
+
+    return break_node;
+}
+
+std::any MiniCCSTVisitor::visitContinueStatement(MiniCParser::ContinueStatementContext * ctx)
+{
+    // breakStatement: T_BREAK T_SEMICOLON;
+
+    // 声明语句节点
+    ast_node * continue_node = create_contain_node(ast_operator_type::AST_OP_CONTINUE);
+
+    return continue_node;
 }

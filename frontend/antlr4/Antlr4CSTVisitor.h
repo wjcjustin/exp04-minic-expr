@@ -249,4 +249,18 @@ protected:
     /// @param ctx CST上下文
     /// @return AST的节点
     std::any visitCond(MiniCParser::CondContext * ctx) override;
+
+    ///
+    /// @brief 非终结符break的分析
+    /// @param ctx CST上下文
+    /// @return std::any AST的节点
+    ///
+    std::any visitBreakStatement(MiniCParser::BreakStatementContext * ctx) override;
+
+    ///
+    /// @brief 非终结符continue的分析
+    /// @param ctx CST上下文
+    /// @return std::any AST的节点
+    ///
+    std::any visitContinueStatement(MiniCParser::ContinueStatementContext * ctx) override;
 };

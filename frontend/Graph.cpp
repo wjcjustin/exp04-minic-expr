@@ -130,6 +130,12 @@ string getNodeName(ast_node * astnode)
         case ast_operator_type::AST_OP_COND:
             nodeName = "cond";
             break;
+        case ast_operator_type::AST_OP_CONTINUE:
+            nodeName = "continue";
+            break;
+        case ast_operator_type::AST_OP_BREAK:
+            nodeName = "break";
+            break;
         default:
             nodeName = "unknown";
             break;

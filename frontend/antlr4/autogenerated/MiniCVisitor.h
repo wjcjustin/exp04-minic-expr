@@ -53,6 +53,10 @@ public:
 
     virtual std::any visitWhileExpr(MiniCParser::WhileExprContext *context) = 0;
 
+    virtual std::any visitBreakStatement(MiniCParser::BreakStatementContext *context) = 0;
+
+    virtual std::any visitContinueStatement(MiniCParser::ContinueStatementContext *context) = 0;
+
     virtual std::any visitExpr(MiniCParser::ExprContext *context) = 0;
 
     virtual std::any visitArithmeticExp(MiniCParser::ArithmeticExpContext *context) = 0;

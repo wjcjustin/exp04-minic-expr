@@ -17,19 +17,20 @@ public:
     T_MOD = 12, T_AND = 13, T_OR = 14, T_NOT = 15, T_EQUAL = 16, T_NOT_EQUAL = 17, 
     T_GREATER = 18, T_LESSER = 19, T_GREATER_EQUAL = 20, T_LESSER_EQUAL = 21, 
     T_RETURN = 22, T_INT = 23, T_VOID = 24, T_IF = 25, T_ELSE = 26, T_WHILE = 27, 
-    T_ID = 28, T_DIGIT = 29, T_OCT_DIGIT = 30, T_HEX_DIGIT = 31, WS = 32, 
-    LINE_COMMENT = 33, BLOCK_COMMENT = 34
+    T_BREAK = 28, T_CONTINUE = 29, T_ID = 30, T_DIGIT = 31, T_OCT_DIGIT = 32, 
+    T_HEX_DIGIT = 33, WS = 34, LINE_COMMENT = 35, BLOCK_COMMENT = 36
   };
 
   enum {
     RuleCompileUnit = 0, RuleFuncDef = 1, RuleBlock = 2, RuleBlockItemList = 3, 
     RuleBlockItem = 4, RuleVarDecl = 5, RuleBasicType = 6, RuleVarDef = 7, 
     RuleStatement = 8, RuleIfelseExpr = 9, RuleCond = 10, RuleWhileExpr = 11, 
-    RuleExpr = 12, RuleArithmeticExp = 13, RuleRelationalBinaryExp = 14, 
-    RuleLogicBinaryExp = 15, RuleLogicAndExp = 16, RuleAddExp = 17, RuleMulExp = 18, 
-    RuleAddOp = 19, RuleMulOp = 20, RuleRelationalBinaryOp = 21, RuleLogicBinaryOp = 22, 
-    RuleNormalUnaryExp = 23, RuleUnaryOp = 24, RuleUnaryExp = 25, RulePrimaryExp = 26, 
-    RuleRealParamList = 27, RuleLVal = 28
+    RuleBreakStatement = 12, RuleContinueStatement = 13, RuleExpr = 14, 
+    RuleArithmeticExp = 15, RuleRelationalBinaryExp = 16, RuleLogicBinaryExp = 17, 
+    RuleLogicAndExp = 18, RuleAddExp = 19, RuleMulExp = 20, RuleAddOp = 21, 
+    RuleMulOp = 22, RuleRelationalBinaryOp = 23, RuleLogicBinaryOp = 24, 
+    RuleNormalUnaryExp = 25, RuleUnaryOp = 26, RuleUnaryExp = 27, RulePrimaryExp = 28, 
+    RuleRealParamList = 29, RuleLVal = 30
   };
 
   explicit MiniCParser(antlr4::TokenStream *input);
@@ -61,6 +62,8 @@ public:
   class IfelseExprContext;
   class CondContext;
   class WhileExprContext;
+  class BreakStatementContext;
+  class ContinueStatementContext;
   class ExprContext;
   class ArithmeticExpContext;
   class RelationalBinaryExpContext;
@@ -148,6 +151,8 @@ public:
     virtual size_t getRuleIndex() const override;
     StatementContext *statement();
     VarDeclContext *varDecl();
+    BreakStatementContext *breakStatement();
+    ContinueStatementContext *continueStatement();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -323,6 +328,34 @@ public:
   };
 
   WhileExprContext* whileExpr();
+
+  class  BreakStatementContext : public antlr4::ParserRuleContext {
+  public:
+    BreakStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *T_BREAK();
+    antlr4::tree::TerminalNode *T_SEMICOLON();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  BreakStatementContext* breakStatement();
+
+  class  ContinueStatementContext : public antlr4::ParserRuleContext {
+  public:
+    ContinueStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *T_CONTINUE();
+    antlr4::tree::TerminalNode *T_SEMICOLON();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  ContinueStatementContext* continueStatement();
 
   class  ExprContext : public antlr4::ParserRuleContext {
   public:
