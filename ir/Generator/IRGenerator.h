@@ -163,6 +163,11 @@ protected:
     /// @return 翻译是否成功，true：成功，false：失败
     bool ir_cond(ast_node * node, LabelInstruction * l_true, LabelInstruction * l_flase);
 
+    /// @brief while节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_while(ast_node * node);
+
     /// @brief 类型叶子节点翻译成线性中间IR
     /// @param node AST节点
     /// @return 翻译是否成功，true：成功，false：失败

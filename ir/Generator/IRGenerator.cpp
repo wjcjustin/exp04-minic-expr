@@ -75,7 +75,7 @@ IRGenerator::IRGenerator(ast_node * _root, Module * _module) : root(_root), modu
     ast2ir_handlers[ast_operator_type::AST_OP_ASSIGN] = &IRGenerator::ir_assign;
     ast2ir_handlers[ast_operator_type::AST_OP_RETURN] = &IRGenerator::ir_return;
     ast2ir_handlers[ast_operator_type::AST_OP_IF_ELSE] = &IRGenerator::ir_ifelse;
-    // ast2ir_handlers[ast_operator_type::AST_OP_COND] = &IRGenerator::ir_cond;
+    ast2ir_handlers[ast_operator_type::AST_OP_WHILE] = &IRGenerator::ir_while;
 
     /* 函数调用 */
     ast2ir_handlers[ast_operator_type::AST_OP_FUNC_CALL] = &IRGenerator::ir_function_call;
@@ -1135,6 +1135,46 @@ bool IRGenerator::ir_cond(ast_node * node, LabelInstruction * l_true, LabelInstr
     //     node->blockInsts.addInst(sonn->blockInsts);
     //     node->blockInsts.addInst(br);
     // }
+
+    return true;
+}
+
+/// @brief while节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_while(ast_node * node)
+{
+    // 有2个孩子，第一个是判断条件cond，第二个是循环体 body
+
+    // ir添加顺序：L1, cond, L2, body, j-l1, L3
+    ast_node * cond = node->sons[0];
+    ast_node * body = ir_visit_ast_node(node->sons[1]);
+
+    // 三个标签，分别为循环入口、循环体入口、循环出口
+    LabelInstruction * l1 = new LabelInstruction(module->getCurrentFunction());
+    LabelInstruction * l2 = new LabelInstruction(module->getCurrentFunction());
+    LabelInstruction * l3 = new LabelInstruction(module->getCurrentFunction());
+
+    GotoInstruction * goto_l1 = new GotoInstruction(module->getCurrentFunction(), l1);
+
+    // 翻译cond节点，传入 l2, l3
+    bool cond_result = ir_cond(cond, l2, l3);
+    if (!cond_result) {
+        return false;
+    }
+
+    // L1
+    node->blockInsts.addInst(l1);
+    // cond
+    node->blockInsts.addInst(cond->blockInsts);
+    // l2
+    node->blockInsts.addInst(l2);
+    // body
+    node->blockInsts.addInst(body->blockInsts);
+    // j-l3
+    node->blockInsts.addInst(goto_l1);
+    // l3  while 出口
+    node->blockInsts.addInst(l3);
 
     return true;
 }
