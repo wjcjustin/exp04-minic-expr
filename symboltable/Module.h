@@ -23,6 +23,7 @@
 #include "Type.h"
 #include "GlobalVariable.h"
 #include "Function.h"
+#include "Value.h"
 
 class ScopeStack;
 
@@ -121,6 +122,14 @@ public:
     /// @param name 变量ID
     /// @return 指针有效则找到，空指针未找到
     Value * findVarValue(std::string name);
+
+    /// @brief 在当前作用域中添加 While 的入出口标签
+    /// @param loop_in, loop_out 标签
+    void addWhileLabel(Value * loop_in, Value * loop_out);
+
+    /// @brief 在当前作用域中删除 While 的入出口标签
+    /// @param loop_in, loop_out 标签
+    void deleteWhileLabel();
 
     /// @brief 清理Module中管理的所有信息资源
     void Delete();

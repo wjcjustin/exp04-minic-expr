@@ -331,3 +331,17 @@ void Module::outputIR(const std::string & filePath)
 
     fclose(fp);
 }
+
+/// @brief 在当前作用域中添加 While 的入出口标签
+/// @param loop_in, loop_out 标签
+void Module::addWhileLabel(Value * loop_in, Value * loop_out)
+{
+    scopeStack->insertWhileLabel(loop_in, loop_out);
+}
+
+/// @brief 在当前作用域中删除 While 的入出口标签
+/// @param loop_in, loop_out 标签
+void Module::deleteWhileLabel()
+{
+    scopeStack->deleteWhileLabel();
+}

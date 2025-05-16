@@ -43,6 +43,31 @@ void ScopeStack::insertValue(Value * value)
 }
 
 ///
+/// @brief 向当前的作用域中加入while循环入口和出口标签
+/// @param value 变量
+///
+void ScopeStack::insertWhileLabel(Value * while_in, Value * while_out)
+{
+    std::string in, out;
+    in = "lable_while_in";
+    out = "label_while_out";
+    valueStack.back().insert(make_pair(in, while_in));
+    valueStack.back().insert(make_pair(out, while_out));
+}
+
+///
+/// @brief 删除当前的作用域中的while循环入口和出口标签
+///
+void ScopeStack::deleteWhileLabel()
+{
+    std::string in, out;
+    in = "lable_while_in";
+    out = "label_while_out";
+    valueStack.back().erase(in);
+    valueStack.back().erase(out);
+}
+
+///
 /// @brief 从当前的作用域中查找指定的变量名
 /// @param  name 变量名
 /// @return Value* 变量对象，若没有，则返回空指针

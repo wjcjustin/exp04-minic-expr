@@ -1157,6 +1157,9 @@ bool IRGenerator::ir_while(ast_node * node)
 
     GotoInstruction * goto_l1 = new GotoInstruction(module->getCurrentFunction(), l1);
 
+    // 先在while所在的作用域中添加循环入口节点和循环出口节点的label
+    
+
     // 翻译cond节点，传入 l2, l3
     bool cond_result = ir_cond(cond, l2, l3);
     if (!cond_result) {

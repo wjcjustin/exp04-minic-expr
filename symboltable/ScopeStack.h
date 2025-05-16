@@ -34,6 +34,17 @@ public:
     void insertValue(Value * value);
 
     ///
+    /// @brief 向当前的作用域中加入While入口和出口标签
+    /// @param value 变量
+    ///
+    void insertWhileLabel(Value * while_in, Value * while_out);
+
+    ///
+    /// @brief 删除当前的作用域中的while循环入口和出口标签
+    ///
+    void deleteWhileLabel();
+
+    ///
     /// @brief 从当前的作用域中查找指定的变量名
     /// @param  name 变量名
     /// @return Value* 变量对象，若没有，则返回空指针
