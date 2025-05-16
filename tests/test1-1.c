@@ -1,9 +1,8 @@
 int main() {
     int a;
-    if (1 <= 3 || 1 > 2 && !(3 == 2)) {
-        a = 222;
-    } else {
-        a = 333;
+    a = 0;
+    while (a < 100 || a > 20 && a != 5) {
+        a = a + 1;
     }
     return a;
 }

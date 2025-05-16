@@ -40,13 +40,17 @@ statement:
 	| lVal T_ASSIGN expr T_SEMICOLON	# assignStatement
 	| block								# blockStatement
 	| expr? T_SEMICOLON					# expressionStatement
-	| ifelseExpr						# ifelseStatement;
+	| ifelseExpr						# ifelseStatement
+	| whileExpr							# whileStatement;
 
 // ifelse语句块(暂时不支持else if)
 ifelseExpr: T_IF T_L_PAREN cond T_R_PAREN block (T_ELSE block)?;
 
 // if/while 条件判断块
 cond: expr;
+
+// while 语句块
+whileExpr: T_WHILE T_L_PAREN cond T_R_PAREN block;
 
 // 表达式文法 expr : 支持逻辑运算、关系运算、算术运算
 expr: logicBinaryExp;
@@ -149,6 +153,7 @@ T_INT: 'int';
 T_VOID: 'void';
 T_IF: 'if';
 T_ELSE: 'else';
+T_WHILE: 'while';
 
 T_ID: [a-zA-Z_][a-zA-Z0-9_]*;
 T_DIGIT: '0' | [1-9][0-9]*;

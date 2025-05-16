@@ -67,11 +67,19 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitWhileStatement(MiniCParser::WhileStatementContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitIfelseExpr(MiniCParser::IfelseExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
   virtual std::any visitCond(MiniCParser::CondContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitWhileExpr(MiniCParser::WhileExprContext *ctx) override {
     return visitChildren(ctx);
   }
 

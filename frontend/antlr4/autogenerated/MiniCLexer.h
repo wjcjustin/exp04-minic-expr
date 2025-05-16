@@ -16,9 +16,9 @@ public:
     T_ASSIGN = 6, T_COMMA = 7, T_ADD = 8, T_SUB = 9, T_MUL = 10, T_DIV = 11, 
     T_MOD = 12, T_AND = 13, T_OR = 14, T_NOT = 15, T_EQUAL = 16, T_NOT_EQUAL = 17, 
     T_GREATER = 18, T_LESSER = 19, T_GREATER_EQUAL = 20, T_LESSER_EQUAL = 21, 
-    T_RETURN = 22, T_INT = 23, T_VOID = 24, T_IF = 25, T_ELSE = 26, T_ID = 27, 
-    T_DIGIT = 28, T_OCT_DIGIT = 29, T_HEX_DIGIT = 30, WS = 31, LINE_COMMENT = 32, 
-    BLOCK_COMMENT = 33
+    T_RETURN = 22, T_INT = 23, T_VOID = 24, T_IF = 25, T_ELSE = 26, T_WHILE = 27, 
+    T_ID = 28, T_DIGIT = 29, T_OCT_DIGIT = 30, T_HEX_DIGIT = 31, WS = 32, 
+    LINE_COMMENT = 33, BLOCK_COMMENT = 34
   };
 
   explicit MiniCLexer(antlr4::CharStream *input);

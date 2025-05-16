@@ -176,6 +176,8 @@ std::any MiniCCSTVisitor::visitStatement(MiniCParser::StatementContext * ctx)
         return visitExpressionStatement(exprCtx);
     } else if (Instanceof(ifelseCtx, MiniCParser::IfelseStatementContext *, ctx)) {
         return visitIfelseStatement(ifelseCtx);
+    } else if (Instanceof(whileCtx, MiniCParser::WhileStatementContext *, ctx)) {
+        return visitWhileStatement(whileCtx);
     }
 
     return nullptr;
@@ -683,4 +685,33 @@ std::any MiniCCSTVisitor::visitCond(MiniCParser::CondContext * ctx)
     // ast_node * cond_node = create_contain_node(ast_operator_type::AST_OP_COND, son);
     // return cond_node;
     return son;
+}
+
+/// @brief 非终结运算符statement中的whileStatement的遍历
+/// @param ctx CST上下文
+/// @return AST的节点
+std::any MiniCCSTVisitor::visitWhileStatement(MiniCParser::WhileStatementContext * ctx)
+{
+    // statement: whileExpr;
+    return visitWhileExpr(ctx->whileExpr());
+}
+
+/// @brief 非终结运算符WhileExpr的遍历
+/// @param ctx CST上下文
+/// @return AST的节点
+std::any MiniCCSTVisitor::visitWhileExpr(MiniCParser::WhileExprContext * ctx)
+{
+    // whileExpr: T_WHILE T_L_PAREN cond T_R_PAREN block;
+
+    // 有两个孩子，判断条件 cond 和循环体 body
+    auto cond = std::any_cast<ast_node *>(visitCond(ctx->cond()));
+    auto body = std::any_cast<ast_node *>(visitBlock(ctx->block()));
+
+    // 创建 while 节点
+    auto whileNode = ast_node::New(ast_operator_type::AST_OP_WHILE, nullptr);
+    // 添加两个孩子节点
+    whileNode->insert_son_node(cond);
+    whileNode->insert_son_node(body);
+
+    return whileNode;
 }

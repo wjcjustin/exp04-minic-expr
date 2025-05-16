@@ -16,20 +16,20 @@ public:
     T_ASSIGN = 6, T_COMMA = 7, T_ADD = 8, T_SUB = 9, T_MUL = 10, T_DIV = 11, 
     T_MOD = 12, T_AND = 13, T_OR = 14, T_NOT = 15, T_EQUAL = 16, T_NOT_EQUAL = 17, 
     T_GREATER = 18, T_LESSER = 19, T_GREATER_EQUAL = 20, T_LESSER_EQUAL = 21, 
-    T_RETURN = 22, T_INT = 23, T_VOID = 24, T_IF = 25, T_ELSE = 26, T_ID = 27, 
-    T_DIGIT = 28, T_OCT_DIGIT = 29, T_HEX_DIGIT = 30, WS = 31, LINE_COMMENT = 32, 
-    BLOCK_COMMENT = 33
+    T_RETURN = 22, T_INT = 23, T_VOID = 24, T_IF = 25, T_ELSE = 26, T_WHILE = 27, 
+    T_ID = 28, T_DIGIT = 29, T_OCT_DIGIT = 30, T_HEX_DIGIT = 31, WS = 32, 
+    LINE_COMMENT = 33, BLOCK_COMMENT = 34
   };
 
   enum {
     RuleCompileUnit = 0, RuleFuncDef = 1, RuleBlock = 2, RuleBlockItemList = 3, 
     RuleBlockItem = 4, RuleVarDecl = 5, RuleBasicType = 6, RuleVarDef = 7, 
-    RuleStatement = 8, RuleIfelseExpr = 9, RuleCond = 10, RuleExpr = 11, 
-    RuleArithmeticExp = 12, RuleRelationalBinaryExp = 13, RuleLogicBinaryExp = 14, 
-    RuleLogicAndExp = 15, RuleAddExp = 16, RuleMulExp = 17, RuleAddOp = 18, 
-    RuleMulOp = 19, RuleRelationalBinaryOp = 20, RuleLogicBinaryOp = 21, 
-    RuleNormalUnaryExp = 22, RuleUnaryOp = 23, RuleUnaryExp = 24, RulePrimaryExp = 25, 
-    RuleRealParamList = 26, RuleLVal = 27
+    RuleStatement = 8, RuleIfelseExpr = 9, RuleCond = 10, RuleWhileExpr = 11, 
+    RuleExpr = 12, RuleArithmeticExp = 13, RuleRelationalBinaryExp = 14, 
+    RuleLogicBinaryExp = 15, RuleLogicAndExp = 16, RuleAddExp = 17, RuleMulExp = 18, 
+    RuleAddOp = 19, RuleMulOp = 20, RuleRelationalBinaryOp = 21, RuleLogicBinaryOp = 22, 
+    RuleNormalUnaryExp = 23, RuleUnaryOp = 24, RuleUnaryExp = 25, RulePrimaryExp = 26, 
+    RuleRealParamList = 27, RuleLVal = 28
   };
 
   explicit MiniCParser(antlr4::TokenStream *input);
@@ -60,6 +60,7 @@ public:
   class StatementContext;
   class IfelseExprContext;
   class CondContext;
+  class WhileExprContext;
   class ExprContext;
   class ArithmeticExpContext;
   class RelationalBinaryExpContext;
@@ -212,6 +213,15 @@ public:
    
   };
 
+  class  WhileStatementContext : public StatementContext {
+  public:
+    WhileStatementContext(StatementContext *ctx);
+
+    WhileExprContext *whileExpr();
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  BlockStatementContext : public StatementContext {
   public:
     BlockStatementContext(StatementContext *ctx);
@@ -296,6 +306,23 @@ public:
   };
 
   CondContext* cond();
+
+  class  WhileExprContext : public antlr4::ParserRuleContext {
+  public:
+    WhileExprContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *T_WHILE();
+    antlr4::tree::TerminalNode *T_L_PAREN();
+    CondContext *cond();
+    antlr4::tree::TerminalNode *T_R_PAREN();
+    BlockContext *block();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  WhileExprContext* whileExpr();
 
   class  ExprContext : public antlr4::ParserRuleContext {
   public:

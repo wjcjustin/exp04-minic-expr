@@ -230,10 +230,20 @@ protected:
     /// @return AST的节点
     std::any visitIfelseStatement(MiniCParser::IfelseStatementContext * ctx) override;
 
+    /// @brief 非终结运算符statement中的whileStatement的遍历
+    /// @param ctx CST上下文
+    /// @return AST的节点
+    std::any visitWhileStatement(MiniCParser::WhileStatementContext * ctx) override;
+
     /// @brief 非终结运算符ifelseExpr的遍历
     /// @param ctx CST上下文
     /// @return AST的节点
     std::any visitIfelseExpr(MiniCParser::IfelseExprContext * ctx) override;
+
+    /// @brief 非终结运算符WhileExpr的遍历
+    /// @param ctx CST上下文
+    /// @return AST的节点
+    std::any visitWhileExpr(MiniCParser::WhileExprContext * ctx) override;
 
     /// @brief 非终结运算符Cond的遍历
     /// @param ctx CST上下文
