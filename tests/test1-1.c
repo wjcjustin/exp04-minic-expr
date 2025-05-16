@@ -1,14 +1,17 @@
+// test continue
 int main()
 {
-    int a;
-    a = 1;
-    while (a < 100) {
-        a = a + 1;
-        if (a == 70) {
+    int i;
+    i = 0;
+    int sum;
+    sum = 0;
+    while (i < 100) {
+        if (i == 50) {
+            i = i + 1;
             continue;
         }
-        if (a > 90) {
-            break;
-        }
+        sum = sum + i;
+        i = i + 1;
     }
+    return sum;
 }

@@ -378,14 +378,28 @@ bool IRGenerator::ir_block(ast_node * node)
 
     std::vector<ast_node *>::iterator pIter;
     for (pIter = node->sons.begin(); pIter != node->sons.end(); ++pIter) {
+        ast_operator_type node_type = (*pIter)->node_type;
+        if (node_type == ast_operator_type::AST_OP_BREAK) {
+            // break 添加跳至循环出口语句
+            std::string out = "label_while_out";
+            LabelInstruction * labelLoopOut = dynamic_cast<LabelInstruction *>(module->findVarValue(out));
+            GotoInstruction * gotoLoopOut = new GotoInstruction(module->getCurrentFunction(), labelLoopOut);
+            node->blockInsts.addInst(gotoLoopOut);
+        } else if (node_type == ast_operator_type::AST_OP_CONTINUE) {
+            // continue 添加跳至循环入口语句
+            std::string in = "label_while_in";
+            LabelInstruction * labelLoopIn = dynamic_cast<LabelInstruction *>(module->findVarValue(in));
+            GotoInstruction * gotoLoopIn = new GotoInstruction(module->getCurrentFunction(), labelLoopIn);
+            node->blockInsts.addInst(gotoLoopIn);
+        } else {
+            // 遍历Block的每个语句，进行显示或者运算
+            ast_node * temp = ir_visit_ast_node(*pIter);
+            if (!temp) {
+                return false;
+            }
 
-        // 遍历Block的每个语句，进行显示或者运算
-        ast_node * temp = ir_visit_ast_node(*pIter);
-        if (!temp) {
-            return false;
+            node->blockInsts.addInst(temp->blockInsts);
         }
-
-        node->blockInsts.addInst(temp->blockInsts);
     }
 
     // 离开作用域
@@ -1146,10 +1160,6 @@ bool IRGenerator::ir_while(ast_node * node)
 {
     // 有2个孩子，第一个是判断条件cond，第二个是循环体 body
 
-    // ir添加顺序：L1, cond, L2, body, j-l1, L3
-    ast_node * cond = node->sons[0];
-    ast_node * body = ir_visit_ast_node(node->sons[1]);
-
     // 三个标签，分别为循环入口、循环体入口、循环出口
     LabelInstruction * l1 = new LabelInstruction(module->getCurrentFunction());
     LabelInstruction * l2 = new LabelInstruction(module->getCurrentFunction());
@@ -1157,8 +1167,12 @@ bool IRGenerator::ir_while(ast_node * node)
 
     GotoInstruction * goto_l1 = new GotoInstruction(module->getCurrentFunction(), l1);
 
-    // 先在while所在的作用域中添加循环入口节点和循环出口节点的label
-    
+    // 先在while所在的作用域中添加循环入口节点和循环出口节点的label，在while退出时要删掉lable，以免与同层其他while混淆
+    module->addWhileLabel(l1, l3);
+
+    // ir添加顺序：L1, cond, L2, body, j-l1, L3
+    ast_node * cond = node->sons[0];
+    ast_node * body = ir_visit_ast_node(node->sons[1]);
 
     // 翻译cond节点，传入 l2, l3
     bool cond_result = ir_cond(cond, l2, l3);
@@ -1178,6 +1192,9 @@ bool IRGenerator::ir_while(ast_node * node)
     node->blockInsts.addInst(goto_l1);
     // l3  while 出口
     node->blockInsts.addInst(l3);
+
+    // 删除作用域中的 while label
+    module->deleteWhileLabel();
 
     return true;
 }

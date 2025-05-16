@@ -49,7 +49,7 @@ void ScopeStack::insertValue(Value * value)
 void ScopeStack::insertWhileLabel(Value * while_in, Value * while_out)
 {
     std::string in, out;
-    in = "lable_while_in";
+    in = "label_while_in";
     out = "label_while_out";
     valueStack.back().insert(make_pair(in, while_in));
     valueStack.back().insert(make_pair(out, while_out));
@@ -61,7 +61,7 @@ void ScopeStack::insertWhileLabel(Value * while_in, Value * while_out)
 void ScopeStack::deleteWhileLabel()
 {
     std::string in, out;
-    in = "lable_while_in";
+    in = "label_while_in";
     out = "label_while_out";
     valueStack.back().erase(in);
     valueStack.back().erase(out);
