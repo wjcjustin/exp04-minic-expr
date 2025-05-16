@@ -857,7 +857,7 @@ bool IRGenerator::ir_ifelse(ast_node * node)
 
     // ir添加顺序：cond-ir, L1, S1-ir, j-l3, l2, [S2-ir,] L3
     ast_node * cond = node->sons[0];
-    ast_node * s_true = ir_visit_ast_node(node->sons[1]);
+    ast_node * s_true = ir_visit_ifelse_while_body(node->sons[1]);
 
     // 三个标签，分别为真入口、假入口、结束入口
     LabelInstruction * l1 = new LabelInstruction(module->getCurrentFunction());
@@ -884,7 +884,7 @@ bool IRGenerator::ir_ifelse(ast_node * node)
     node->blockInsts.addInst(l2);
     // S2-ir (如果有else块)
     if ((int) node->sons.size() > 2) {
-        ast_node * else_node = ir_visit_ast_node(node->sons[2]);
+        ast_node * else_node = ir_visit_ifelse_while_body(node->sons[2]);
         node->blockInsts.addInst(else_node->blockInsts);
     }
     // l3  ifelse 出口
@@ -1172,7 +1172,7 @@ bool IRGenerator::ir_while(ast_node * node)
 
     // ir添加顺序：L1, cond, L2, body, j-l1, L3
     ast_node * cond = node->sons[0];
-    ast_node * body = ir_visit_ast_node(node->sons[1]);
+    ast_node * body = ir_visit_ifelse_while_body(node->sons[1]);
 
     // 翻译cond节点，传入 l2, l3
     bool cond_result = ir_cond(cond, l2, l3);
@@ -1197,4 +1197,28 @@ bool IRGenerator::ir_while(ast_node * node)
     module->deleteWhileLabel();
 
     return true;
+}
+
+/// @brief ifelse/while 体 的遍历
+ast_node * IRGenerator::ir_visit_ifelse_while_body(ast_node * node)
+{
+    ast_operator_type node_type = node->node_type;
+    if (node_type == ast_operator_type::AST_OP_BREAK) {
+        // break 添加跳至循环出口语句
+        std::string out = "label_while_out";
+        LabelInstruction * labelLoopOut = dynamic_cast<LabelInstruction *>(module->findVarValue(out));
+        GotoInstruction * gotoLoopOut = new GotoInstruction(module->getCurrentFunction(), labelLoopOut);
+        node->blockInsts.addInst(gotoLoopOut);
+    } else if (node_type == ast_operator_type::AST_OP_CONTINUE) {
+        // continue 添加跳至循环入口语句
+        std::string in = "label_while_in";
+        LabelInstruction * labelLoopIn = dynamic_cast<LabelInstruction *>(module->findVarValue(in));
+        GotoInstruction * gotoLoopIn = new GotoInstruction(module->getCurrentFunction(), labelLoopIn);
+        node->blockInsts.addInst(gotoLoopIn);
+    } else {
+        // 其他语句，无特别操作，遍历进行显示或者运算
+        ir_visit_ast_node(node);
+        // node->blockInsts.addInst(temp->blockInsts);
+    }
+    return node;
 }

@@ -168,6 +168,9 @@ protected:
     /// @return 翻译是否成功，true：成功，false：失败
     bool ir_while(ast_node * node);
 
+    /// @brief ifelse/while 体 的遍历
+    ast_node * ir_visit_ifelse_while_body(ast_node * node);
+
     /// @brief 类型叶子节点翻译成线性中间IR
     /// @param node AST节点
     /// @return 翻译是否成功，true：成功，false：失败
