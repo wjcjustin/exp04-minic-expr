@@ -153,11 +153,12 @@ std::any MiniCCSTVisitor::visitBlockItem(MiniCParser::BlockItemContext * ctx)
         return visitStatement(ctx->statement());
     } else if (ctx->varDecl()) {
         return visitVarDecl(ctx->varDecl());
-    } else if (ctx->breakStatement()) {
-        return visitBreakStatement(ctx->breakStatement());
-    } else if (ctx->continueStatement()) {
-        return visitContinueStatement(ctx->continueStatement());
     }
+    // else if (ctx->breakStatement()) {
+    //     return visitBreakStatement(ctx->breakStatement());
+    // } else if (ctx->continueStatement()) {
+    //     return visitContinueStatement(ctx->continueStatement());
+    // }
 
     return nullptr;
 }
@@ -182,6 +183,10 @@ std::any MiniCCSTVisitor::visitStatement(MiniCParser::StatementContext * ctx)
         return visitIfelseStatement(ifelseCtx);
     } else if (Instanceof(whileCtx, MiniCParser::WhileStatementContext *, ctx)) {
         return visitWhileStatement(whileCtx);
+    } else if (Instanceof(breakCtx, MiniCParser::BreakStatementContext *, ctx)) {
+        return visitBreakStatement(breakCtx);
+    } else if (Instanceof(continueCtx, MiniCParser::ContinueStatementContext *, ctx)) {
+        return visitContinueStatement(continueCtx);
     }
 
     return nullptr;
@@ -655,14 +660,14 @@ std::any MiniCCSTVisitor::visitIfelseStatement(MiniCParser::IfelseStatementConte
 /// @return AST的节点
 std::any MiniCCSTVisitor::visitIfelseExpr(MiniCParser::IfelseExprContext * ctx)
 {
-    // ifelseExpr: T_IF T_L_PAREN expr T_R_PAREN block (T_ELSE block)?;
+    // ifelseExpr: T_IF T_L_PAREN cond T_R_PAREN statement (T_ELSE statement)?;
 
     // type_attr ifelseType{BasicType::TYPE_VOID, (int64_t) ctx->T_IF()->getSymbol()->getLine()};
 
     // 创建 cond 节点
     auto cond = std::any_cast<ast_node *>(visitCond(ctx->cond()));
     // 创建 true 节点，一定有
-    auto s_true = std::any_cast<ast_node *>(visitBlock(ctx->block()[0]));
+    auto s_true = std::any_cast<ast_node *>(visitStatement(ctx->statement()[0]));
 
     // 创建 ifelse AST节点
     auto ifelseNode = ast_node::New(ast_operator_type::AST_OP_IF_ELSE, nullptr);
@@ -672,7 +677,7 @@ std::any MiniCCSTVisitor::visitIfelseExpr(MiniCParser::IfelseExprContext * ctx)
 
     // 如果有else，即有s_false节点，那么也添加进去
     if (ctx->T_ELSE()) {
-        auto s_false = std::any_cast<ast_node *>(visitBlock(ctx->block()[1]));
+        auto s_false = std::any_cast<ast_node *>(visitStatement(ctx->statement()[1]));
         ifelseNode->insert_son_node(s_false);
     }
 
@@ -705,11 +710,11 @@ std::any MiniCCSTVisitor::visitWhileStatement(MiniCParser::WhileStatementContext
 /// @return AST的节点
 std::any MiniCCSTVisitor::visitWhileExpr(MiniCParser::WhileExprContext * ctx)
 {
-    // whileExpr: T_WHILE T_L_PAREN cond T_R_PAREN block;
+    // whileExpr: T_WHILE T_L_PAREN cond T_R_PAREN statement;
 
     // 有两个孩子，判断条件 cond 和循环体 body
     auto cond = std::any_cast<ast_node *>(visitCond(ctx->cond()));
-    auto body = std::any_cast<ast_node *>(visitBlock(ctx->block()));
+    auto body = std::any_cast<ast_node *>(visitStatement(ctx->statement()));
 
     // 创建 while 节点
     auto whileNode = ast_node::New(ast_operator_type::AST_OP_WHILE, nullptr);

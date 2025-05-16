@@ -23,11 +23,8 @@ block: T_L_BRACE blockItemList? T_R_BRACE;
 blockItemList: blockItem+;
 
 // 每个Item可以是一个语句，或者变量声明语句
-blockItem:
-	statement
-	| varDecl
-	| breakStatement
-	| continueStatement;
+blockItem: statement | varDecl;
+// | breakStatement | continueStatement;
 
 // 变量声明，目前不支持变量含有初值
 varDecl: basicType varDef (T_COMMA varDef)* T_SEMICOLON;
@@ -45,19 +42,23 @@ statement:
 	| block								# blockStatement
 	| expr? T_SEMICOLON					# expressionStatement
 	| ifelseExpr						# ifelseStatement
-	| whileExpr							# whileStatement;
+	| whileExpr							# whileStatement
+	| T_BREAK T_SEMICOLON				# breakStatement
+	| T_CONTINUE T_SEMICOLON			# continueStatement;
 
 // ifelse语句块(暂时不支持else if)
-ifelseExpr: T_IF T_L_PAREN cond T_R_PAREN block (T_ELSE block)?;
+ifelseExpr:
+	T_IF T_L_PAREN cond T_R_PAREN statement (T_ELSE statement)?;
+
+// ifelse 后跟的部分，可以是块，可以是一个语句 ifelseBlock: blockItem? T_SEMICOLON | block;
 
 // if/while 条件判断块
 cond: expr;
 
 // while 语句块
-whileExpr: T_WHILE T_L_PAREN cond T_R_PAREN block;
+whileExpr: T_WHILE T_L_PAREN cond T_R_PAREN statement;
 
-breakStatement: T_BREAK T_SEMICOLON;
-continueStatement: T_CONTINUE T_SEMICOLON;
+// breakStatement: T_BREAK T_SEMICOLON; continueStatement: T_CONTINUE T_SEMICOLON;
 
 // 表达式文法 expr : 支持逻辑运算、关系运算、算术运算
 expr: logicBinaryExp;

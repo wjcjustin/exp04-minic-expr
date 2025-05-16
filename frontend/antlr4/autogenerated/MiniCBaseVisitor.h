@@ -71,6 +71,14 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitBreakStatement(MiniCParser::BreakStatementContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitContinueStatement(MiniCParser::ContinueStatementContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitIfelseExpr(MiniCParser::IfelseExprContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -80,14 +88,6 @@ public:
   }
 
   virtual std::any visitWhileExpr(MiniCParser::WhileExprContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitBreakStatement(MiniCParser::BreakStatementContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitContinueStatement(MiniCParser::ContinueStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 

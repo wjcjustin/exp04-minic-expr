@@ -47,15 +47,15 @@ public:
 
     virtual std::any visitWhileStatement(MiniCParser::WhileStatementContext *context) = 0;
 
+    virtual std::any visitBreakStatement(MiniCParser::BreakStatementContext *context) = 0;
+
+    virtual std::any visitContinueStatement(MiniCParser::ContinueStatementContext *context) = 0;
+
     virtual std::any visitIfelseExpr(MiniCParser::IfelseExprContext *context) = 0;
 
     virtual std::any visitCond(MiniCParser::CondContext *context) = 0;
 
     virtual std::any visitWhileExpr(MiniCParser::WhileExprContext *context) = 0;
-
-    virtual std::any visitBreakStatement(MiniCParser::BreakStatementContext *context) = 0;
-
-    virtual std::any visitContinueStatement(MiniCParser::ContinueStatementContext *context) = 0;
 
     virtual std::any visitExpr(MiniCParser::ExprContext *context) = 0;
 
