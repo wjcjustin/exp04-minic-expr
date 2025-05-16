@@ -133,6 +133,9 @@ enum class ast_operator_type : int {
     /// @brief 分支语句ifelse
     AST_OP_IF_ELSE,
 
+    /// @brief if/while 等的条件判断块
+    AST_OP_COND,
+
     /// @brief 最大标识符，表示非法运算符
     AST_OP_MAX,
 };

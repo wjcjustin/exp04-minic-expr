@@ -47,6 +47,8 @@ public:
 
     virtual std::any visitIfelseExpr(MiniCParser::IfelseExprContext *context) = 0;
 
+    virtual std::any visitCond(MiniCParser::CondContext *context) = 0;
+
     virtual std::any visitExpr(MiniCParser::ExprContext *context) = 0;
 
     virtual std::any visitArithmeticExp(MiniCParser::ArithmeticExpContext *context) = 0;

@@ -24,11 +24,12 @@ public:
   enum {
     RuleCompileUnit = 0, RuleFuncDef = 1, RuleBlock = 2, RuleBlockItemList = 3, 
     RuleBlockItem = 4, RuleVarDecl = 5, RuleBasicType = 6, RuleVarDef = 7, 
-    RuleStatement = 8, RuleIfelseExpr = 9, RuleExpr = 10, RuleArithmeticExp = 11, 
-    RuleRelationalBinaryExp = 12, RuleLogicBinaryExp = 13, RuleLogicAndExp = 14, 
-    RuleAddExp = 15, RuleMulExp = 16, RuleAddOp = 17, RuleMulOp = 18, RuleRelationalBinaryOp = 19, 
-    RuleLogicBinaryOp = 20, RuleNormalUnaryExp = 21, RuleUnaryOp = 22, RuleUnaryExp = 23, 
-    RulePrimaryExp = 24, RuleRealParamList = 25, RuleLVal = 26
+    RuleStatement = 8, RuleIfelseExpr = 9, RuleCond = 10, RuleExpr = 11, 
+    RuleArithmeticExp = 12, RuleRelationalBinaryExp = 13, RuleLogicBinaryExp = 14, 
+    RuleLogicAndExp = 15, RuleAddExp = 16, RuleMulExp = 17, RuleAddOp = 18, 
+    RuleMulOp = 19, RuleRelationalBinaryOp = 20, RuleLogicBinaryOp = 21, 
+    RuleNormalUnaryExp = 22, RuleUnaryOp = 23, RuleUnaryExp = 24, RulePrimaryExp = 25, 
+    RuleRealParamList = 26, RuleLVal = 27
   };
 
   explicit MiniCParser(antlr4::TokenStream *input);
@@ -58,6 +59,7 @@ public:
   class VarDefContext;
   class StatementContext;
   class IfelseExprContext;
+  class CondContext;
   class ExprContext;
   class ArithmeticExpContext;
   class RelationalBinaryExpContext;
@@ -269,7 +271,7 @@ public:
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *T_IF();
     antlr4::tree::TerminalNode *T_L_PAREN();
-    ExprContext *expr();
+    CondContext *cond();
     antlr4::tree::TerminalNode *T_R_PAREN();
     std::vector<BlockContext *> block();
     BlockContext* block(size_t i);
@@ -281,6 +283,19 @@ public:
   };
 
   IfelseExprContext* ifelseExpr();
+
+  class  CondContext : public antlr4::ParserRuleContext {
+  public:
+    CondContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    ExprContext *expr();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  CondContext* cond();
 
   class  ExprContext : public antlr4::ParserRuleContext {
   public:

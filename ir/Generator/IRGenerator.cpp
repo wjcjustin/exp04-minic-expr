@@ -75,6 +75,7 @@ IRGenerator::IRGenerator(ast_node * _root, Module * _module) : root(_root), modu
     ast2ir_handlers[ast_operator_type::AST_OP_ASSIGN] = &IRGenerator::ir_assign;
     ast2ir_handlers[ast_operator_type::AST_OP_RETURN] = &IRGenerator::ir_return;
     ast2ir_handlers[ast_operator_type::AST_OP_IF_ELSE] = &IRGenerator::ir_ifelse;
+    // ast2ir_handlers[ast_operator_type::AST_OP_COND] = &IRGenerator::ir_cond;
 
     /* 函数调用 */
     ast2ir_handlers[ast_operator_type::AST_OP_FUNC_CALL] = &IRGenerator::ir_function_call;
@@ -841,32 +842,24 @@ bool IRGenerator::ir_ifelse(ast_node * node)
     // 有2-3个孩子，第一个是判断条件cond(expr node)，第二个是真语句块，第三个是else语句块
 
     // ir添加顺序：cond-ir, L1, S1-ir, j-l3, l2, [S2-ir,] L3
-    ast_node * cond = ir_visit_ast_node(node->sons[0]);
+    ast_node * cond = node->sons[0];
     ast_node * s_true = ir_visit_ast_node(node->sons[1]);
 
+    // 三个标签，分别为真入口、假入口、结束入口
     LabelInstruction * l1 = new LabelInstruction(module->getCurrentFunction());
     LabelInstruction * l2 = new LabelInstruction(module->getCurrentFunction());
     LabelInstruction * l3 = new LabelInstruction(module->getCurrentFunction());
 
     GotoInstruction * goto_l3 = new GotoInstruction(module->getCurrentFunction(), l3);
 
-    // cond-ir
-    // 判断cond, cond==1->j-L1, j-L2
-    // 创建一个常量，值为1，用于比较
-    // ConstInt * val_1 = module->newConstInt(1);
-    // // 相等节点
-    // BinaryInstruction * cmp_cond = new BinaryInstruction(module->getCurrentFunction(),
-    //                                                      IRInstOperator::IRINST_OP_EQUAL,
-    //                                                      cond->val,
-    //                                                      val_1,
-    //                                                      IntegerType::getTypeBool());
-    // // TODO 先去实现有条件跳转 Instruction
+    // 翻译cond节点，传入条件真假出口 l1, l2
+    bool cond_result = ir_cond(cond, l1, l2);
+    if (!cond_result) {
+        return false;
+    }
 
+    // cond
     node->blockInsts.addInst(cond->blockInsts);
-    BranchInstruction * br_inst = new BranchInstruction(module->getCurrentFunction(), cond->val, l1, l2);
-    // node->blockInsts.addInst(cmp_cond);
-    node->blockInsts.addInst(br_inst);
-
     // L1
     node->blockInsts.addInst(l1);
     // S1-ir(true block)
@@ -1057,5 +1050,30 @@ bool IRGenerator::ir_and(ast_node * node)
 
 bool IRGenerator::ir_not(ast_node * node)
 {
+    return true;
+}
+
+/// @brief cond AST节点的翻译
+/// @param ast 节点，真假出口
+bool IRGenerator::ir_cond(ast_node * node, LabelInstruction * l_true, LabelInstruction * l_flase)
+{
+
+    ast_node * son = node->sons[0];
+    // 判断孩子节点是否为逻辑表达式
+    ast_operator_type son_type = son->node_type;
+    if (son_type == ast_operator_type::AST_OP_AND) {
+        ;
+    } else if (son_type == ast_operator_type::AST_OP_OR) {
+        ;
+    } else if (son_type == ast_operator_type::AST_OP_NOT) {
+        ;
+    } else {
+        // 条件不是逻辑表达式，是普通值
+        ast_node * sonn = ir_visit_ast_node(son);
+        BranchInstruction * br = new BranchInstruction(module->getCurrentFunction(), sonn->val, l_true, l_flase);
+        node->blockInsts.addInst(sonn->blockInsts);
+        node->blockInsts.addInst(br);
+    }
+
     return true;
 }

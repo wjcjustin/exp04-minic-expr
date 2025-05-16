@@ -43,7 +43,10 @@ statement:
 	| ifelseExpr						# ifelseStatement;
 
 // ifelse语句块(暂时不支持else if)
-ifelseExpr: T_IF T_L_PAREN expr T_R_PAREN block (T_ELSE block)?;
+ifelseExpr: T_IF T_L_PAREN cond T_R_PAREN block (T_ELSE block)?;
+
+// if/while 条件判断块
+cond: expr;
 
 // 表达式文法 expr : 支持逻辑运算、关系运算、算术运算
 expr: logicBinaryExp;

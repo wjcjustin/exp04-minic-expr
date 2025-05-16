@@ -234,4 +234,9 @@ protected:
     /// @param ctx CST上下文
     /// @return AST的节点
     std::any visitIfelseExpr(MiniCParser::IfelseExprContext * ctx) override;
+
+    /// @brief 非终结运算符Cond的遍历
+    /// @param ctx CST上下文
+    /// @return AST的节点
+    std::any visitCond(MiniCParser::CondContext * ctx) override;
 };

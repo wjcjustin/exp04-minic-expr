@@ -71,6 +71,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitCond(MiniCParser::CondContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitExpr(MiniCParser::ExprContext *ctx) override {
     return visitChildren(ctx);
   }

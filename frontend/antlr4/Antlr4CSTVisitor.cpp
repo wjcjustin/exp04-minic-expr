@@ -23,6 +23,7 @@
 #include "Antlr4CSTVisitor.h"
 #include "AST.h"
 #include "AttrType.h"
+#include "IntegerType.h"
 #include "MiniCParser.h"
 
 #define Instanceof(res, type, var) auto res = dynamic_cast<type>(var)
@@ -653,7 +654,7 @@ std::any MiniCCSTVisitor::visitIfelseExpr(MiniCParser::IfelseExprContext * ctx)
     // type_attr ifelseType{BasicType::TYPE_VOID, (int64_t) ctx->T_IF()->getSymbol()->getLine()};
 
     // 创建 cond 节点
-    auto cond = std::any_cast<ast_node *>(visitExpr(ctx->expr()));
+    auto cond = std::any_cast<ast_node *>(visitCond(ctx->cond()));
     // 创建 true 节点，一定有
     auto s_true = std::any_cast<ast_node *>(visitBlock(ctx->block()[0]));
 
@@ -670,4 +671,15 @@ std::any MiniCCSTVisitor::visitIfelseExpr(MiniCParser::IfelseExprContext * ctx)
     }
 
     return ifelseNode;
+}
+
+/// @brief 非终结运算符Cond的遍历
+/// @param ctx CST上下文
+/// @return AST的节点
+std::any MiniCCSTVisitor::visitCond(MiniCParser::CondContext * ctx)
+{
+
+    ast_node * son = std::any_cast<ast_node *>(visitExpr(ctx->expr()));
+    ast_node * cond_node = create_contain_node(ast_operator_type::AST_OP_COND, son);
+    return cond_node;
 }
