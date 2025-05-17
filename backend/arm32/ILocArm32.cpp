@@ -567,6 +567,6 @@ void ILocArm32::jump(std::string label)
 void ILocArm32::jump_condition(std::string cond_reg, std::string label)
 {
     // 如果cond的值为1，则跳转至label
-    emit("cmp", cond_reg, "#1");
-    emit("beq", label);
+    emit("cmp", cond_reg, "#0");
+    emit("bne", label);
 }
