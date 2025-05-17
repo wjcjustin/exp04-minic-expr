@@ -13,6 +13,7 @@
 /// <tr><td>2024-09-29 <td>1.0     <td>zenglj  <td>新建
 /// <tr><td>2024-11-23 <td>1.1     <td>zenglj  <td>表达式版增强
 /// <tr><td>2025-05-05 <td>1.2     <td>weijiachao  <td>增加求负、乘除、取余
+/// <tr><td>2025-05-17 <td>1.3     <td>weijiachao <td>添加分支与循环
 /// </table>
 ///
 #pragma once
