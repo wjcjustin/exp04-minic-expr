@@ -1,9 +1,9 @@
 int main()
 {
     int a, b, c;
-    a = 1;
-    b = 2;
-    c = 3;
+    a = 1 > 2;
+    b = 2 < 3;
+    c = 3 == 4;
     if (a)
         a = 11;
     else

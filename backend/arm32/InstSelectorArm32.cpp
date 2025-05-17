@@ -16,6 +16,8 @@
 ///
 #include <cstdint>
 #include <cstdio>
+#include <string>
+#include <unordered_map>
 
 #include "BranchInstruction.h"
 #include "Common.h"
@@ -59,6 +61,13 @@ InstSelectorArm32::InstSelectorArm32(vector<Instruction *> & _irCode,
     translator_handlers[IRInstOperator::IRINST_OP_DIV_I] = &InstSelectorArm32::translate_div_int32;
     translator_handlers[IRInstOperator::IRINST_OP_MOD_I] = &InstSelectorArm32::translate_mod_int32;
     translator_handlers[IRInstOperator::IRINST_OP_NEG_I] = &InstSelectorArm32::translate_neg_int32;
+
+    translator_handlers[IRInstOperator::IRINST_OP_GREATER] = &InstSelectorArm32::translate_gt;
+    translator_handlers[IRInstOperator::IRINST_OP_GREATER_EQUAL] = &InstSelectorArm32::translate_ge;
+    translator_handlers[IRInstOperator::IRINST_OP_LESSER] = &InstSelectorArm32::translate_lt;
+    translator_handlers[IRInstOperator::IRINST_OP_LESSER_EQUAL] = &InstSelectorArm32::translate_le;
+    translator_handlers[IRInstOperator::IRINST_OP_EQUAL] = &InstSelectorArm32::translate_eq;
+    translator_handlers[IRInstOperator::IRINST_OP_NOT_EQUAL] = &InstSelectorArm32::translate_ne;
 
     translator_handlers[IRInstOperator::IRINST_OP_FUNC_CALL] = &InstSelectorArm32::translate_call;
     translator_handlers[IRInstOperator::IRINST_OP_ARG] = &InstSelectorArm32::translate_arg;
@@ -616,4 +625,132 @@ void InstSelectorArm32::translate_branch_condition(Instruction * inst)
     }
     iloc.jump_condition(PlatformArm32::regName[load_cond_reg_no], bcInst->getTarget1()->getName());
     iloc.jump(bcInst->getTarget2()->getName());
+}
+
+/// @brief 关系指令 翻译成ARM32汇编
+/// @param inst IR指令
+void InstSelectorArm32::translate_relation(Instruction * inst, std::string cond)
+{
+    // dest = icmp gt src1, src2
+    // 以 > 为例
+    // cmp src1, src2
+    // movgt dest, #1   ; 如果大于，则传入1
+    // movle dest, #0   ; 否则，传入0
+    Value * result = inst;
+    Value * arg1 = inst->getOperand(0);
+    Value * arg2 = inst->getOperand(1);
+
+    int32_t arg1_reg_no = arg1->getRegId();
+    int32_t arg2_reg_no = arg2->getRegId();
+    int32_t result_reg_no = inst->getRegId();
+    int32_t load_result_reg_no, load_arg1_reg_no, load_arg2_reg_no;
+
+    // 看arg1是否是寄存器，若是则寄存器寻址，否则要load变量到寄存器中
+    if (arg1_reg_no == -1) {
+        // 不是寄存器寻址，需要为其分配寄存器
+        // 分配一个空闲寄存器
+        load_arg1_reg_no = simpleRegisterAllocator.Allocate(arg1);
+
+        // arg1 -> r8，这里可能由于偏移不满足指令的要求，需要额外分配寄存器
+        iloc.load_var(load_arg1_reg_no, arg1);
+    } else {
+        load_arg1_reg_no = arg1_reg_no;
+    }
+
+    // 看arg2是否是寄存器，若是则寄存器寻址，否则要load变量到寄存器中
+    if (arg2_reg_no == -1) {
+
+        // 分配一个寄存器r9
+        load_arg2_reg_no = simpleRegisterAllocator.Allocate(arg2);
+
+        // arg2 -> r9
+        iloc.load_var(load_arg2_reg_no, arg2);
+    } else {
+        load_arg2_reg_no = arg2_reg_no;
+    }
+
+    // 看结果变量是否是寄存器，若不是则需要分配一个新的寄存器来保存运算的结果
+    if (result_reg_no == -1) {
+        // 分配一个寄存器r10，用于暂存结果
+        load_result_reg_no = simpleRegisterAllocator.Allocate(result);
+    } else {
+        load_result_reg_no = result_reg_no;
+    }
+
+    std::string contry_cond_code = (contrary_cond_code.find(cond))->second;
+
+    // cmp src1, src2
+    // movgt dest, #1   ; 如果大于，则传入1
+    // movle dest, #0   ; 否则，传入0
+    iloc.inst("cmp", PlatformArm32::regName[load_arg1_reg_no], PlatformArm32::regName[load_arg2_reg_no]);
+    iloc.inst("mov" + cond, PlatformArm32::regName[load_result_reg_no], "#" + std::to_string(1));
+    iloc.inst("mov" + contry_cond_code, PlatformArm32::regName[load_result_reg_no], "#" + std::to_string(0));
+
+    // 结果不是寄存器，则需要把rs_reg_name保存到结果变量中
+    if (result_reg_no == -1) {
+
+        // 这里使用预留的临时寄存器，因为立即数可能过大，必须借助寄存器才可操作。
+
+        // r10 -> result
+        iloc.store_var(load_result_reg_no, result, ARM32_TMP_REG_NO);
+    }
+
+    // 释放寄存器
+    simpleRegisterAllocator.free(arg1);
+    simpleRegisterAllocator.free(arg2);
+    simpleRegisterAllocator.free(result);
+}
+
+/// @brief 关系指令 icmp gt 翻译成ARM32汇编
+/// @param inst IR指令
+void InstSelectorArm32::translate_gt(Instruction * inst)
+{
+    // dest = icmp gt src1, src2
+    std::string cond = "gt";
+    translate_relation(inst, cond);
+}
+
+/// @brief 关系指令 icmp ge 翻译成ARM32汇编
+/// @param inst IR指令
+void InstSelectorArm32::translate_ge(Instruction * inst)
+{
+    // dest = icmp ge src1, src2
+    std::string cond = "ge";
+    translate_relation(inst, cond);
+}
+
+/// @brief 关系指令 icmp lt 翻译成ARM32汇编
+/// @param inst IR指令
+void InstSelectorArm32::translate_lt(Instruction * inst)
+{
+    // dest = icmp lt src1, src2
+    std::string cond = "lt";
+    translate_relation(inst, cond);
+}
+
+/// @brief 关系指令 icmp le 翻译成ARM32汇编
+/// @param inst IR指令
+void InstSelectorArm32::translate_le(Instruction * inst)
+{
+    // dest = icmp le src1, src2
+    std::string cond = "le";
+    translate_relation(inst, cond);
+}
+
+/// @brief 关系指令 icmp eq 翻译成ARM32汇编
+/// @param inst IR指令
+void InstSelectorArm32::translate_eq(Instruction * inst)
+{
+    // dest = icmp eq src1, src2
+    std::string cond = "eq";
+    translate_relation(inst, cond);
+}
+
+/// @brief 关系指令 icmp ne 翻译成ARM32汇编
+/// @param inst IR指令
+void InstSelectorArm32::translate_ne(Instruction * inst)
+{
+    // dest = icmp ne src1, src2
+    std::string cond = "ne";
+    translate_relation(inst, cond);
 }

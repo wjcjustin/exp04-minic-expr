@@ -102,6 +102,34 @@ protected:
     /// @param inst IR指令
     void translate_neg_int32(Instruction * inst);
 
+    /// @brief 关系指令 > 翻译成ARM32汇编
+    /// @param inst IR指令
+    void translate_gt(Instruction * inst);
+
+    /// @brief 关系指令 >= 翻译成ARM32汇编
+    /// @param inst IR指令
+    void translate_ge(Instruction * inst);
+
+    /// @brief 关系指令 < 翻译成ARM32汇编
+    /// @param inst IR指令
+    void translate_lt(Instruction * inst);
+
+    /// @brief 关系指令 <= 翻译成ARM32汇编
+    /// @param inst IR指令
+    void translate_le(Instruction * inst);
+
+    /// @brief 关系指令 == 翻译成ARM32汇编
+    /// @param inst IR指令
+    void translate_eq(Instruction * inst);
+
+    /// @brief 关系指令 != 翻译成ARM32汇编
+    /// @param inst IR指令
+    void translate_ne(Instruction * inst);
+
+    /// @brief 关系指令 翻译成ARM32汇编
+    /// @param inst IR指令
+    void translate_relation(Instruction * inst, std::string cond);
+
     /// @brief 一元操作指令翻译成ARM32汇编
     /// @param inst IR指令
     /// @param operator_name 操作码
@@ -127,6 +155,10 @@ protected:
 
     /// @brief IR动作处理函数清单
     map<IRInstOperator, translate_handler> translator_handlers;
+
+    /// @brief 关系运算条件码的相反条件码映射表
+    unordered_map<std::string, std::string> contrary_cond_code =
+        {{"gt", "le"}, {"ge", "lt"}, {"lt", "ge"}, {"le", "gt"}, {"eq", "ne"}, {"ne", "eq"}};
 
     ///
     /// @brief 简单的朴素寄存器分配方法

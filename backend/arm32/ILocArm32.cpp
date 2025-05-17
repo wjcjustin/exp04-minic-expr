@@ -570,3 +570,13 @@ void ILocArm32::jump_condition(std::string cond_reg, std::string label)
     emit("cmp", cond_reg, "#0");
     emit("bne", label);
 }
+
+/// @brief 条件加载立即数 ldr r0,=#100
+/// @param rs_reg_no 结果寄存器号
+/// @param num 立即数
+/// @param cond 加载条件
+void ILocArm32::load_imm(int rs_reg_no, int constant, std::string cond)
+{
+    std::string opcode = "mov" + cond;
+    emit(opcode, PlatformArm32::regName[rs_reg_no], "#" + std::to_string(constant));
+}

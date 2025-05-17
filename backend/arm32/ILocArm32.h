@@ -94,6 +94,12 @@ class ILocArm32 {
     /// @param num 立即数
     void load_imm(int rs_reg_no, int num);
 
+    /// @brief 条件加载立即数 ldr r0,=#100
+    /// @param rs_reg_no 结果寄存器号
+    /// @param num 立即数
+    /// @param cond 加载条件
+    void load_imm(int rs_reg_no, int num, std::string cond);
+
     /// @brief 加载符号值 ldr r0,=g; ldr r0,[r0]
     /// @param rsReg 结果寄存器号
     /// @param name Label名字
