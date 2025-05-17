@@ -632,8 +632,12 @@ bool IRGenerator::ir_neg(ast_node * node)
         return false;
     }
 
-    NegUnaryInstruction * subInst =
-        new NegUnaryInstruction(module->getCurrentFunction(), right->val, IntegerType::getTypeInt());
+    // NegUnaryInstruction * subInst =
+    //     new NegUnaryInstruction(module->getCurrentFunction(), right->val, IntegerType::getTypeInt());
+    UnaryInstruction * subInst = new UnaryInstruction(module->getCurrentFunction(),
+                                                      IRInstOperator::IRINST_OP_NEG_I,
+                                                      right->val,
+                                                      IntegerType::getTypeInt());
 
     // 保存右部的IR指令以及求负操作的IR指令
     node->blockInsts.addInst(right->blockInsts);
@@ -1092,15 +1096,15 @@ bool IRGenerator::ir_not(ast_node * node, LabelInstruction * l1, LabelInstructio
     return true;
 }
 
-bool IRGenerator::ir_logic(ast_node * node, ast_operator_type op, LabelInstruction * l_true, LabelInstruction * l_flase)
+bool IRGenerator::ir_logic(ast_node * node, ast_operator_type op, LabelInstruction * l_true, LabelInstruction * l_false)
 {
     switch (op) {
         case ast_operator_type::AST_OP_AND:
-            return ir_and(node, l_true, l_flase);
+            return ir_and(node, l_true, l_false);
         case ast_operator_type::AST_OP_OR:
-            return ir_or(node, l_true, l_flase);
+            return ir_or(node, l_true, l_false);
         case ast_operator_type::AST_OP_NOT:
-            return ir_not(node, l_true, l_flase);
+            return ir_not(node, l_true, l_false);
         default:
             return true;
     }
@@ -1108,29 +1112,39 @@ bool IRGenerator::ir_logic(ast_node * node, ast_operator_type op, LabelInstructi
 
 /// @brief cond AST节点的翻译
 /// @param ast 节点，真假出口
-bool IRGenerator::ir_cond(ast_node * node, LabelInstruction * l_true, LabelInstruction * l_flase)
+bool IRGenerator::ir_cond(ast_node * node, LabelInstruction * l_true, LabelInstruction * l_false)
 {
-
-    // ast_node * son = node->sons[0];
-    ast_node * son = node;
     // 判断 节点是否为逻辑表达式
-    ast_operator_type son_type = son->node_type;
-    switch (son_type) {
+    ast_operator_type node_type = node->node_type;
+    switch (node_type) {
         case ast_operator_type::AST_OP_AND:
         case ast_operator_type::AST_OP_OR:
         case ast_operator_type::AST_OP_NOT: {
             // 传入 cond 的真假跳转目标，让逻辑语句内部去实现跳转
-            bool result = ir_logic(son, son_type, l_true, l_flase);
+            bool result = ir_logic(node, node_type, l_true, l_false);
             if (!result) {
                 return false;
             }
-            // node->blockInsts.addInst(son->blockInsts); // son 就是 node，不用重复添加
             break;
         }
+        case ast_operator_type::AST_OP_NEG: {
+            ast_node * son = node->sons[0];
+            if (son->node_type == ast_operator_type::AST_OP_AND || son->node_type == ast_operator_type::AST_OP_OR ||
+                son->node_type == ast_operator_type::AST_OP_NOT) {
+                // 如果负号的孩子是逻辑表达式，那么负号对于逻辑判断无用，可以忽略
+                bool result = ir_cond(son, l_true, l_false);
+                if (!result) {
+                    return false;
+                }
+                node->blockInsts.addInst(son->blockInsts);
+                break;
+            }
+            // 如果负号的孩子是不是逻辑表达式，那么就需要按普通表达式处理，继续default分支
+        }
         default: { // 条件不是逻辑表达式，是普通值表达式
-            ir_visit_ast_node(son);
+            ir_visit_ast_node(node);
             // ast_node * sonn = ir_visit_ast_node(son);
-            BranchInstruction * br = new BranchInstruction(module->getCurrentFunction(), son->val, l_true, l_flase);
+            BranchInstruction * br = new BranchInstruction(module->getCurrentFunction(), node->val, l_true, l_false);
             // node->blockInsts.addInst(sonn->blockInsts); // son 就是 node，不用重复添加
             node->blockInsts.addInst(br);
             break;
@@ -1145,7 +1159,7 @@ bool IRGenerator::ir_cond(ast_node * node, LabelInstruction * l_true, LabelInstr
     // } else {
     //     // 条件不是逻辑表达式，是普通值
     //     ast_node * sonn = ir_visit_ast_node(son);
-    //     BranchInstruction * br = new BranchInstruction(module->getCurrentFunction(), sonn->val, l_true, l_flase);
+    //     BranchInstruction * br = new BranchInstruction(module->getCurrentFunction(), sonn->val, l_true, l_false);
     //     node->blockInsts.addInst(sonn->blockInsts);
     //     node->blockInsts.addInst(br);
     // }
