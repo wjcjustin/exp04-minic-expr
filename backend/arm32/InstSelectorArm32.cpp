@@ -594,8 +594,9 @@ void InstSelectorArm32::translate_arg(Instruction * inst)
 void InstSelectorArm32::translate_branch_condition(Instruction * inst)
 {
     // bc cond, lable .L1, label .L2
-    // CBNZ cond, .L1
-    // C .L2
+    // cmp cond, #1
+    // beq .L1
+    // b .L2
 
     Instanceof(bcInst, BranchInstruction *, inst);
     Value * cond = bcInst->getCondValue();

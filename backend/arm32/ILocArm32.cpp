@@ -152,10 +152,10 @@ void ILocArm32::deleteUnusedLabel()
                 labelUsed = true;
                 break;
             }
-            if ((!arm->dead) && (arm->opcode == "cbnz") && (arm->arg1 == labelArm->opcode)) {
-                labelUsed = true;
-                break;
-            }
+            // if ((!arm->dead) && (arm->opcode == "cbnz") && (arm->arg1 == labelArm->opcode)) {
+            //     labelUsed = true;
+            //     break;
+            // }
         }
 
         if (!labelUsed) {
@@ -566,5 +566,7 @@ void ILocArm32::jump(std::string label)
 ///
 void ILocArm32::jump_condition(std::string cond_reg, std::string label)
 {
-    emit("cbnz", cond_reg, label);
+    // 如果cond的值为1，则跳转至label
+    emit("cmp", cond_reg, "#1");
+    emit("beq", label);
 }
