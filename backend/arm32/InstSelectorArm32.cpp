@@ -14,8 +14,10 @@
 /// <tr><td>2024-05-06 <td>1.1     <td>weijiachao  <td>添加求负、乘除取余操作
 /// </table>
 ///
+#include <cstdint>
 #include <cstdio>
 
+#include "BranchInstruction.h"
 #include "Common.h"
 #include "ILocArm32.h"
 #include "InstSelectorArm32.h"
@@ -30,6 +32,7 @@
 #include "GotoInstruction.h"
 #include "FuncCallInstruction.h"
 #include "MoveInstruction.h"
+#include "Value.h"
 
 /// @brief 构造函数
 /// @param _irCode 指令
@@ -46,6 +49,7 @@ InstSelectorArm32::InstSelectorArm32(vector<Instruction *> & _irCode,
 
     translator_handlers[IRInstOperator::IRINST_OP_LABEL] = &InstSelectorArm32::translate_label;
     translator_handlers[IRInstOperator::IRINST_OP_GOTO] = &InstSelectorArm32::translate_goto;
+    translator_handlers[IRInstOperator::IRINST_OP_BRANCH] = &InstSelectorArm32::translate_branch_condition;
 
     translator_handlers[IRInstOperator::IRINST_OP_ASSIGN] = &InstSelectorArm32::translate_assign;
 
@@ -583,4 +587,32 @@ void InstSelectorArm32::translate_arg(Instruction * inst)
     }
 
     realArgCount++;
+}
+
+/// @brief 条件跳转指令翻译成ARM32汇编
+/// @param inst IR指令
+void InstSelectorArm32::translate_branch_condition(Instruction * inst)
+{
+    // bc cond, lable .L1, label .L2
+    // CBNZ cond, .L1
+    // C .L2
+
+    Instanceof(bcInst, BranchInstruction *, inst);
+    Value * cond = bcInst->getCondValue();
+
+    int32_t cond_reg_no = cond->getRegId();
+    int32_t load_cond_reg_no;
+
+    // 看cond是否是寄存器，若是则寄存器寻址，否则要load变量到寄存器中
+    if (cond_reg_no == -1) {
+        // 不是寄存器寻址，需要为其分配寄存器
+        // 分配一个空闲寄存器
+        load_cond_reg_no = simpleRegisterAllocator.Allocate(cond);
+
+        iloc.load_var(load_cond_reg_no, cond);
+    } else {
+        load_cond_reg_no = cond_reg_no;
+    }
+    iloc.jump_condition(PlatformArm32::regName[load_cond_reg_no], bcInst->getTarget1()->getName());
+    iloc.jump(bcInst->getTarget2()->getName());
 }

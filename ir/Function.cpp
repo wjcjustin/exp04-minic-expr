@@ -120,10 +120,6 @@ void Function::toString(std::string & str)
     for (auto & inst: code.getInsts()) {
 
         if (inst->hasResultValue()) {
-
-            Type * tp = inst->getType();
-            std::string tp_str = tp->toString();
-
             // 局部变量和临时变量需要输出declare语句
             str += "\tdeclare " + inst->getType()->toString() + " " + inst->getIRName() + "\n";
         }

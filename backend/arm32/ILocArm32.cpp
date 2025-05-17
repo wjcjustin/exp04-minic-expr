@@ -152,6 +152,10 @@ void ILocArm32::deleteUnusedLabel()
                 labelUsed = true;
                 break;
             }
+            if ((!arm->dead) && (arm->opcode == "cbnz") && (arm->arg1 == labelArm->opcode)) {
+                labelUsed = true;
+                break;
+            }
         }
 
         if (!labelUsed) {
@@ -553,4 +557,14 @@ void ILocArm32::nop()
 void ILocArm32::jump(std::string label)
 {
     emit("b", label);
+}
+
+///
+/// @brief 条件跳转指令
+/// @param cond_reg 判断寄存器的名称
+/// @param label 目标Label名称
+///
+void ILocArm32::jump_condition(std::string cond_reg, std::string label)
+{
+    emit("cbnz", cond_reg, label);
 }

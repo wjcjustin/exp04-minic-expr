@@ -89,6 +89,10 @@ protected:
     /// @param inst IR指令
     void translate_mod_int32(Instruction * inst);
 
+    /// @brief 条件跳转指令翻译成ARM32汇编
+    /// @param inst IR指令
+    void translate_branch_condition(Instruction * inst);
+
     /// @brief 二元操作指令翻译成ARM32汇编
     /// @param inst IR指令
     /// @param operator_name 操作码

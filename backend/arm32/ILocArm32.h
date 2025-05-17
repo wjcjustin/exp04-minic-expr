@@ -207,6 +207,13 @@ public:
     ///
     void jump(std::string label);
 
+    ///
+    /// @brief 条件跳转指令
+    /// @param cond_reg 判断寄存器的名称
+    /// @param label 目标Label名称
+    ///
+    void jump_condition(std::string cond_reg, std::string label);
+
     /// @brief 输出汇编
     /// @param file 输出的文件指针
     /// @param outputEmpty 是否输出空语句

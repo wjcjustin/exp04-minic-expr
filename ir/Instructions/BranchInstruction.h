@@ -42,11 +42,18 @@ public:
     /// @return LabelInstruction*
     ///
     [[nodiscard]] LabelInstruction * getTarget1() const;
+
     ///
     /// @brief 获取目标Label2指令
     /// @return LabelInstruction*
     ///
     [[nodiscard]] LabelInstruction * getTarget2() const;
+
+    ///
+    /// @brief 获取条件Value
+    /// @return Value*
+    ///
+    [[nodiscard]] Value * getCondValue() const;
 
 private:
     ///

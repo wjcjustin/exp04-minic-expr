@@ -55,3 +55,12 @@ LabelInstruction * BranchInstruction::getTarget2() const
 {
     return target2;
 }
+
+///
+/// @brief 获取条件Value
+/// @return Value*
+///
+Value * BranchInstruction::getCondValue() const
+{
+    return cond;
+}
