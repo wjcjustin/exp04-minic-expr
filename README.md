@@ -2,7 +2,50 @@
 
 源代码位置：<https://github.com/NPUCompiler/exp04-minic-expr.git>
 
-## 实验四-表达式强化
+## 快速测试和评测工具
+
+测试源文件名默认为test1-1.c
+
+命令如下：
+```sh
+/run.sh [参数]
+```
+
+说明如下：
+```sh
+
+# 不输入参数, 或者输入参数-s或-S, 默认生成汇编代码 ./tests/test1-1.s
+./ run -s
+# 等同于执行命令：
+./build/minic -S  -A -o ./tests/test1-1.s  ./tests/test1-1.c
+
+# 输入参数-T或-t，生成AST图，等同于执行命令
+./build/minic -S  -A -o ./tests/test1-1.png -T  ./tests/test1-1.c
+
+# 输入参数-I或-i，生成ir，等同于执行命令
+./build/minic -S  -A -o ./tests/test1-1.ir -I  ./tests/test1-1.c
+
+# 输入参数-R或-r，生成可执行文件并自动运行并返回退出码，等同于以下三行命令
+arm-linux-gnueabihf-gcc -static -g -o tests/test1-1 tests/test1-1.s
+qemu-arm-static tests/test1-1
+echo $?
+
+```
+
+使用例：
+
+```sh
+./run -s	# 生成./tests/test1-1.s
+./run -i	# 生成./tests/test1-1.ir
+./run -t	# 生成./tests/test1-1.png
+./run -R	# 根据./tests/test1-1.s产生可执行文件并运行，请确认已经生成汇编文件
+```
+
+
+
+## 实验过程
+
+### 实验四-表达式强化
 
 minic编译器要支持的功能：
 
@@ -11,7 +54,7 @@ minic编译器要支持的功能：
 3. 支持乘法*、除法/、求余%运算
 4. ARM32 后端支持
 
-## 实验六-分支与循环
+### 实验六-分支与循环
 
 在实验四的基础上追加支持分支与循环语句等的识别与翻译。
 
