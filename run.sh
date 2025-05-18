@@ -19,9 +19,9 @@ case "$1" in
         ;;
     -R|-r)
         # 编译、执行并输出返回值[3,7](@ref)
-        arm-linux-gnueabihf-gcc -static -g -o "$base_name" "${base_name}.s"
+        arm-linux-gnueabihf-gcc -static -g -o "$base_name" "${base_name}.s" tests/std.c
         qemu-arm-static "$base_name"
-        echo "程序退出码：$?"
+        echo " @程序退出码：$?"
         ;;
     -S|-s|"")
         # 默认生成汇编代码[1,2](@ref)

@@ -13,8 +13,14 @@ grammar MiniC;
 // 源文件编译单元定义
 compileUnit: (funcDef | varDecl)* EOF;
 
-// 函数定义，目前不支持形参，也不支持返回void类型等
-funcDef: T_INT T_ID T_L_PAREN T_R_PAREN block;
+// 函数定义，支持形参，不支持返回void类型等
+funcDef: T_INT T_ID T_L_PAREN formalParamList? T_R_PAREN block;
+
+// 形参列表 formal parameter
+formalParamList: formalParam (T_COMMA formalParam)*;
+
+// 形参
+formalParam: basicType varDef;
 
 // 语句块看用作函数体，这里允许多个语句，并且不含任何语句
 block: T_L_BRACE blockItemList? T_R_BRACE;
@@ -110,7 +116,7 @@ unaryOp: T_SUB | T_NOT;
 // 一元表达式 逻辑非和一元求负优先级相同，右结合
 unaryExp:
 	primaryExp
-	| T_ID T_L_PAREN realParamList? T_R_PAREN
+	| T_ID T_L_PAREN realParamList? T_R_PAREN // 函数调用
 	| normalUnaryExp;
 
 // 基本表达式：括号表达式、整数、左值表达式

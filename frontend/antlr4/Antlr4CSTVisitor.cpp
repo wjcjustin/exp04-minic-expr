@@ -92,8 +92,11 @@ std::any MiniCCSTVisitor::visitFuncDef(MiniCParser::FuncDefContext * ctx)
 
     var_id_attr funcId{id, (int64_t) ctx->T_ID()->getSymbol()->getLine()};
 
-    // 形参结点目前没有，设置为空指针
+    // 形参结点
     ast_node * formalParamsNode = nullptr;
+    if (ctx->formalParamList()) {
+        formalParamsNode = std::any_cast<ast_node *>(visitFormalParamList(ctx->formalParamList()));
+    }
 
     // 遍历block结点创建函数体节点，非终结符
     auto blockNode = std::any_cast<ast_node *>(visitBlock(ctx->block()));
@@ -726,6 +729,9 @@ std::any MiniCCSTVisitor::visitWhileExpr(MiniCParser::WhileExprContext * ctx)
     return whileNode;
 }
 
+/// @brief 非终结运算符BreakStatement的遍历
+/// @param ctx CST上下文
+/// @return AST的节点
 std::any MiniCCSTVisitor::visitBreakStatement(MiniCParser::BreakStatementContext * ctx)
 {
     // breakStatement: T_BREAK T_SEMICOLON;
@@ -736,12 +742,55 @@ std::any MiniCCSTVisitor::visitBreakStatement(MiniCParser::BreakStatementContext
     return break_node;
 }
 
+/// @brief 非终结运算符ContinueStatement的遍历
+/// @param ctx CST上下文
+/// @return AST的节点
 std::any MiniCCSTVisitor::visitContinueStatement(MiniCParser::ContinueStatementContext * ctx)
 {
-    // breakStatement: T_BREAK T_SEMICOLON;
+    // breakStatement: T_CONTINUE T_SEMICOLON;
 
     // 声明语句节点
     ast_node * continue_node = create_contain_node(ast_operator_type::AST_OP_CONTINUE);
 
     return continue_node;
+}
+
+/// @brief 非终结运算符FormalParamList的遍历
+/// @param ctx CST上下文
+/// @return AST的节点
+std::any MiniCCSTVisitor::visitFormalParamList(MiniCParser::FormalParamListContext * ctx)
+{
+    // formalParamList: formalParam (T_COMMA formalParam)*;
+    // 创建形参列表 AST 节点
+    ast_node * formalPrarmList = create_contain_node(ast_operator_type::AST_OP_FUNC_FORMAL_PARAMS);
+    // 向形参列表节点添加形参孩子
+    int paramNum = ctx->formalParam().size();
+    // auto lists = ctx->formalParam(); // TODO
+    if (paramNum != 0) {
+        for (int i = 0; i < paramNum; i++) {
+            ast_node * param = std::any_cast<ast_node *>(visitFormalParam(ctx->formalParam()[i]));
+            formalPrarmList->insert_son_node(param);
+        }
+    }
+
+    return formalPrarmList;
+}
+
+/// @brief 非终结运算符FormalParam的遍历
+/// @param ctx CST上下文
+/// @return AST的节点
+std::any MiniCCSTVisitor::visitFormalParam(MiniCParser::FormalParamContext * ctx)
+{
+    // formalParam: T_INT T_ID;
+    // 创建形参 AST 节点
+    ast_node * formalPrarm = create_contain_node(ast_operator_type::AST_OP_FUNC_FORMAL_PARAM);
+    // 添加形参的类型和名字
+    type_attr typeAttr = std::any_cast<type_attr>(visitBasicType(ctx->basicType()));
+    ast_node * type_node = create_type_node(typeAttr);
+    ast_node * id_node = std::any_cast<ast_node *>(visitVarDef(ctx->varDef()));
+
+    formalPrarm->insert_son_node(type_node);
+    formalPrarm->insert_son_node(id_node);
+
+    return formalPrarm;
 }
