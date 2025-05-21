@@ -1,12 +1,12 @@
-int add(int a, int b)
+
+void put(int a, int b)
 {
     int c;
-    c = a + b;
-    return c;
+    c = a * b;
+    putint(c);
 }
 int main()
 {
-    int a;
-    a = 0;
-    return a;
+    put(2, 5);
+    return 8;
 }

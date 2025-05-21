@@ -14,7 +14,8 @@ grammar MiniC;
 compileUnit: (funcDef | varDecl)* EOF;
 
 // 函数定义，支持形参，不支持返回void类型等
-funcDef: T_INT T_ID T_L_PAREN formalParamList? T_R_PAREN block;
+funcDef:
+	basicType T_ID T_L_PAREN formalParamList? T_R_PAREN block;
 
 // 形参列表 formal parameter
 formalParamList: formalParam (T_COMMA formalParam)*;
@@ -36,7 +37,7 @@ blockItem: statement | varDecl;
 varDecl: basicType varDef (T_COMMA varDef)* T_SEMICOLON;
 
 // 基本类型
-basicType: T_INT;
+basicType: T_INT | T_VOID;
 
 // 变量定义
 varDef: T_ID;

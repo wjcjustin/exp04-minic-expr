@@ -85,7 +85,8 @@ std::any MiniCCSTVisitor::visitFuncDef(MiniCParser::FuncDefContext * ctx)
     // 识别的文法产生式：funcDef : T_INT T_ID T_L_PAREN T_R_PAREN block;
 
     // 函数返回类型，终结符
-    type_attr funcReturnType{BasicType::TYPE_INT, (int64_t) ctx->T_INT()->getSymbol()->getLine()};
+    type_attr funcReturnType = std::any_cast<type_attr>(visitBasicType(ctx->basicType()));
+    // type_attr funcReturnType{retType, (int64_t) ctx->T_INT()->getSymbol()->getLine()};
 
     // 创建函数名的标识符终结符节点，终结符
     char * id = strdup(ctx->T_ID()->getText().c_str());
@@ -614,6 +615,8 @@ std::any MiniCCSTVisitor::visitBasicType(MiniCParser::BasicTypeContext * ctx)
     if (ctx->T_INT()) {
         attr.type = BasicType::TYPE_INT;
         attr.lineno = (int64_t) ctx->T_INT()->getSymbol()->getLine();
+    } else if (ctx->T_VOID()) {
+        attr.lineno = (int64_t) ctx->T_VOID()->getSymbol()->getLine();
     }
 
     return attr;
