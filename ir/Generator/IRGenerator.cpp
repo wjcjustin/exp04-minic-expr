@@ -19,12 +19,15 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
 #include "AST.h"
+#include "AttrType.h"
 #include "BranchInstruction.h"
 #include "Common.h"
+#include "FormalParam.h"
 #include "Function.h"
 #include "IRCode.h"
 #include "IRGenerator.h"
@@ -194,7 +197,19 @@ bool IRGenerator::ir_function_define(ast_node * node)
     ast_node * block_node = node->sons[3];
 
     // 创建一个新的函数定义
-    Function * newFunc = module->newFunction(name_node->name, type_node->type);
+    // 第三个参数是参数，std::vector<FormalParam *> params
+    //
+    // 先创建一个std::vector<FormalParam *> params 类型的参数列表，用于往newFunction中传参
+    std::vector<FormalParam *> params;
+    for (auto param: param_node->sons) {
+        Type * type = param->sons[0]->type;
+        std::string name = param->sons[1]->name;
+        // 新建 FormalParam 对象，加入 params 中
+        FormalParam * formal_param = new FormalParam(type, name);
+        params.push_back(formal_param);
+    }
+
+    Function * newFunc = module->newFunction(name_node->name, type_node->type, params);
     if (!newFunc) {
         // 新定义的函数已经存在，则失败返回。
         // TODO 自行追加语义错误处理
@@ -287,6 +302,35 @@ bool IRGenerator::ir_function_formal_params(ast_node * node)
     // 然后产生赋值指令，用于把表达实参值的临时变量拷贝到形参局部变量上。
     // 请注意这些指令要放在Entry指令后面，因此处理的先后上要注意。
 
+    // 先获取形参个数
+    int32_t paramCount = (int32_t) node->sons.size();
+    if (paramCount == 0) {
+        return true;
+    }
+    int paramIdx = 0;
+    for (auto param: node->sons) {
+        // 获取形参类型和名字
+        Type * type = param->sons[0]->type;
+        std::string name = param->sons[1]->name;
+        // 将这些形参加入局部变量池，保存在函数信息中
+        // 此时已经进入此函数的作用域，因此直接加
+        Value * varValue = module->newVarValue(type, name); // varValue 是形参
+        // 此时相当于已经声明这个局部变量
+
+        // 获取实参
+        // getParams() 返回 std::vector<FormalParam *>
+        auto realParam = module->getCurrentFunction()->getParams()[paramIdx++];
+
+        // 对于每一个实参 %t, 要添加一个赋值语句， 将其赋值给形参 // TODO
+        // %la = %t0
+        MoveInstruction * move = new MoveInstruction(module->getCurrentFunction(), varValue, realParam);
+        node->blockInsts.addInst(move);
+    }
+    // 函数声明括号里的形参 %t0, %t1 ,在newFunction()中在Module.cpp:94 进行了设置
+    // 存在了Function.params中，通过Function::getParams获取params
+    // std::vector<FormalParam *> params
+    // TODO 对于每一个实参，赋值语句怎么搞？
+
     return true;
 }
 
@@ -307,6 +351,7 @@ bool IRGenerator::ir_function_call(ast_node * node)
     std::string funcName = node->sons[0]->name;
     int64_t lineno = node->sons[0]->line_no;
 
+    // paramsNode 是实参列表, 其孩子为若干个叶子结点
     ast_node * paramsNode = node->sons[1];
 
     // 根据函数名查找函数，看是否存在。若不存在则出错
@@ -320,7 +365,8 @@ bool IRGenerator::ir_function_call(ast_node * node)
     // 当前函数存在函数调用
     currentFunc->setExistFuncCall(true);
 
-    // 如果没有孩子，也认为是没有参数
+    // 如果没有孩子，也认为是没有参数，就跳过
+    // 有参数
     if (!paramsNode->sons.empty()) {
 
         int32_t argsCount = (int32_t) paramsNode->sons.size();
@@ -984,7 +1030,7 @@ bool IRGenerator::ir_not_equal(ast_node * node)
 /// @brief 逻辑或 节点翻译成线性中间IR &&
 /// @param node AST节点
 /// @return 翻译是否成功，true：成功，false：失败
-bool IRGenerator::ir_or(ast_node * node, LabelInstruction * l1, LabelInstruction * l2) // TODO 短路求值
+bool IRGenerator::ir_or(ast_node * node, LabelInstruction * l1, LabelInstruction * l2)
 {
     ast_node * src1_node = node->sons[0];
     ast_node * src2_node = node->sons[1];

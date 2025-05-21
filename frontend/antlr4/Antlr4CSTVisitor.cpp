@@ -765,7 +765,7 @@ std::any MiniCCSTVisitor::visitFormalParamList(MiniCParser::FormalParamListConte
     ast_node * formalPrarmList = create_contain_node(ast_operator_type::AST_OP_FUNC_FORMAL_PARAMS);
     // 向形参列表节点添加形参孩子
     int paramNum = ctx->formalParam().size();
-    // auto lists = ctx->formalParam(); // TODO
+    // 如果有参数，就访问参数，然后将参数AST节点加入参数列表的孩子
     if (paramNum != 0) {
         for (int i = 0; i < paramNum; i++) {
             ast_node * param = std::any_cast<ast_node *>(visitFormalParam(ctx->formalParam()[i]));
@@ -784,11 +784,12 @@ std::any MiniCCSTVisitor::visitFormalParam(MiniCParser::FormalParamContext * ctx
     // formalParam: T_INT T_ID;
     // 创建形参 AST 节点
     ast_node * formalPrarm = create_contain_node(ast_operator_type::AST_OP_FUNC_FORMAL_PARAM);
-    // 添加形参的类型和名字
+    // 新建形参的类型和名字
     type_attr typeAttr = std::any_cast<type_attr>(visitBasicType(ctx->basicType()));
     ast_node * type_node = create_type_node(typeAttr);
     ast_node * id_node = std::any_cast<ast_node *>(visitVarDef(ctx->varDef()));
 
+    // 将形参的类型和名字加入形参AST节点的孩子
     formalPrarm->insert_son_node(type_node);
     formalPrarm->insert_son_node(id_node);
 

@@ -206,7 +206,7 @@ public:
     ast_node(var_id_attr attr);
 
     /// @brief 针对标识符ID的叶子构造函数
-    /// @param _id 标识符ID
+    /// @param id 标识符ID
     /// @param _line_no 行号
     ast_node(std::string id, int64_t _line_no);
 

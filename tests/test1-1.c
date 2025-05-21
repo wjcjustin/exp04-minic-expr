@@ -1,10 +1,12 @@
 int add(int a, int b)
 {
-    return a + b;
+    int c;
+    c = a + b;
+    return c;
 }
 int main()
 {
     int a;
-    a = add(1, 2);
-    return 0;
+    a = 0;
+    return a;
 }

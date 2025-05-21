@@ -79,7 +79,7 @@ Function * Module::newFunction(std::string name, Type * returnType, std::vector<
 
     // 根据形参创建形参类型清单
     std::vector<Type *> paramsType(params.size());
-
+    // paramsType 先传入了 size 个 nullptr, 然后再传入每个 Type， 对吗？//TODO
     for (auto & param: params) {
         paramsType.push_back(param->getType());
     }
