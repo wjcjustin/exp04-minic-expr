@@ -24,12 +24,13 @@ public:
   enum {
     RuleCompileUnit = 0, RuleFuncDef = 1, RuleFormalParamList = 2, RuleFormalParam = 3, 
     RuleBlock = 4, RuleBlockItemList = 5, RuleBlockItem = 6, RuleVarDecl = 7, 
-    RuleBasicType = 8, RuleVarDef = 9, RuleStatement = 10, RuleIfelseExpr = 11, 
-    RuleCond = 12, RuleWhileExpr = 13, RuleExpr = 14, RuleArithmeticExp = 15, 
-    RuleRelationalBinaryExp = 16, RuleLogicBinaryExp = 17, RuleLogicAndExp = 18, 
-    RuleAddExp = 19, RuleMulExp = 20, RuleAddOp = 21, RuleMulOp = 22, RuleRelationalBinaryOp = 23, 
-    RuleLogicBinaryOp = 24, RuleNormalUnaryExp = 25, RuleUnaryOp = 26, RuleUnaryExp = 27, 
-    RulePrimaryExp = 28, RuleRealParamList = 29, RuleLVal = 30
+    RuleVarAndInit = 8, RuleBasicType = 9, RuleVarDef = 10, RuleStatement = 11, 
+    RuleIfelseExpr = 12, RuleCond = 13, RuleWhileExpr = 14, RuleExpr = 15, 
+    RuleArithmeticExp = 16, RuleRelationalBinaryExp = 17, RuleLogicBinaryExp = 18, 
+    RuleLogicAndExp = 19, RuleAddExp = 20, RuleMulExp = 21, RuleAddOp = 22, 
+    RuleMulOp = 23, RuleRelationalBinaryOp = 24, RuleLogicBinaryOp = 25, 
+    RuleNormalUnaryExp = 26, RuleUnaryOp = 27, RuleUnaryExp = 28, RulePrimaryExp = 29, 
+    RuleRealParamList = 30, RuleLVal = 31
   };
 
   explicit MiniCParser(antlr4::TokenStream *input);
@@ -57,6 +58,7 @@ public:
   class BlockItemListContext;
   class BlockItemContext;
   class VarDeclContext;
+  class VarAndInitContext;
   class BasicTypeContext;
   class VarDefContext;
   class StatementContext;
@@ -194,8 +196,8 @@ public:
     VarDeclContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     BasicTypeContext *basicType();
-    std::vector<VarDefContext *> varDef();
-    VarDefContext* varDef(size_t i);
+    std::vector<VarAndInitContext *> varAndInit();
+    VarAndInitContext* varAndInit(size_t i);
     antlr4::tree::TerminalNode *T_SEMICOLON();
     std::vector<antlr4::tree::TerminalNode *> T_COMMA();
     antlr4::tree::TerminalNode* T_COMMA(size_t i);
@@ -206,6 +208,21 @@ public:
   };
 
   VarDeclContext* varDecl();
+
+  class  VarAndInitContext : public antlr4::ParserRuleContext {
+  public:
+    VarAndInitContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    VarDefContext *varDef();
+    antlr4::tree::TerminalNode *T_ASSIGN();
+    ExprContext *expr();
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  VarAndInitContext* varAndInit();
 
   class  BasicTypeContext : public antlr4::ParserRuleContext {
   public:

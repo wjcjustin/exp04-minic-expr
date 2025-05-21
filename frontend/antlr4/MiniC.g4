@@ -33,8 +33,11 @@ blockItemList: blockItem+;
 blockItem: statement | varDecl;
 // | breakStatement | continueStatement;
 
-// 变量声明，目前不支持变量含有初值
-varDecl: basicType varDef (T_COMMA varDef)* T_SEMICOLON;
+// 变量声明
+varDecl: basicType varAndInit (T_COMMA varAndInit)* T_SEMICOLON;
+
+// 添加声明的同时初始化
+varAndInit: varDef ( T_ASSIGN expr)?;
 
 // 基本类型
 basicType: T_INT | T_VOID;

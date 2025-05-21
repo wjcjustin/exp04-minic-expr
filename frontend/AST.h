@@ -145,6 +145,9 @@ enum class ast_operator_type : int {
     /// @brief continue
     AST_OP_CONTINUE,
 
+    /// @brief 变量声明并初始化节点
+    AST_OP_VAR_INIT,
+
     /// @brief 最大标识符，表示非法运算符
     AST_OP_MAX,
 };

@@ -579,7 +579,7 @@ std::any MiniCCSTVisitor::visitVarDecl(MiniCParser::VarDeclContext * ctx)
     // 类型节点
     type_attr typeAttr = std::any_cast<type_attr>(visitBasicType(ctx->basicType()));
 
-    for (auto & varCtx: ctx->varDef()) {
+    /*for (auto & varCtx: ctx->varDef()) {
         // 变量名节点
         ast_node * id_node = std::any_cast<ast_node *>(visitVarDef(varCtx));
 
@@ -591,9 +591,53 @@ std::any MiniCCSTVisitor::visitVarDecl(MiniCParser::VarDeclContext * ctx)
 
         // 插入到变量声明语句
         (void) stmt_node->insert_son_node(decl_node);
+    }*/
+    for (auto & varCtx: ctx->varAndInit()) {
+        // 变量声明和初始化节点
+        ast_node * var_and_init_node = std::any_cast<ast_node *>(visitVarAndInit(varCtx));
+
+        // 变量名节点
+        ast_node * id_node = var_and_init_node->sons[0];
+
+        // 创建类型节点
+        ast_node * type_node = create_type_node(typeAttr);
+
+        // 创建变量定义节点
+        ast_node * decl_node = ast_node::New(ast_operator_type::AST_OP_VAR_DECL, type_node, id_node, nullptr);
+
+        // 如果变量声明和初始化节点钟有初始化赋值语句，则添加到变量定义节点钟
+        if (var_and_init_node->sons.size() > 1) {
+            ast_node * init_node = var_and_init_node->sons[1];
+            decl_node->insert_son_node(init_node);
+        }
+
+        // 插入到变量声明语句
+        (void) stmt_node->insert_son_node(decl_node);
+
+        // 释放变量声明和初始化节点，已经不会再用到
+        free(var_and_init_node);
     }
 
     return stmt_node;
+}
+
+/// @brief 变量声明和定义节点的遍历
+std::any MiniCCSTVisitor::visitVarAndInit(MiniCParser::VarAndInitContext * ctx)
+{
+    // 创建变量声明和定义节点
+    ast_node * var_and_init_node = create_contain_node(ast_operator_type::AST_OP_VAR_INIT);
+    // 添加 ID 节点
+    ast_node * id_node = std::any_cast<ast_node *>(visitVarDef(ctx->varDef()));
+    var_and_init_node->insert_son_node(id_node);
+    // 如果有初始化，则添加赋值语句节点
+    if (ctx->expr()) {
+        ast_node * lval_node = std::any_cast<ast_node *>(visitVarDef(ctx->varDef()));
+        ast_node * expr_node = std::any_cast<ast_node *>(visitExpr(ctx->expr()));
+        ast_node * init_node = ast_node::New(ast_operator_type::AST_OP_ASSIGN, lval_node, expr_node, nullptr);
+        var_and_init_node->insert_son_node(init_node);
+    }
+
+    return var_and_init_node;
 }
 
 std::any MiniCCSTVisitor::visitVarDef(MiniCParser::VarDefContext * ctx)

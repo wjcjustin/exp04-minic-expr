@@ -880,6 +880,7 @@ bool IRGenerator::ir_declare_statment(ast_node * node)
         if (!result) {
             break;
         }
+        node->blockInsts.addInst(child->blockInsts);
     }
 
     return result;
@@ -891,10 +892,20 @@ bool IRGenerator::ir_declare_statment(ast_node * node)
 bool IRGenerator::ir_variable_declare(ast_node * node)
 {
     // 共有两个孩子，第一个类型，第二个变量名
+    // 可能有第二个孩子，是变量初始化，转为赋值语句
 
     // TODO 这里可强化类型等检查
 
     node->val = module->newVarValue(node->sons[0]->type, node->sons[1]->name);
+    // 如果有初始化
+    if (node->sons.size() > 2) {
+        auto init_node = node->sons[2];
+        bool result = ir_assign(init_node);
+        if (!result) {
+            return false;
+        }
+        node->blockInsts.addInst(init_node->blockInsts);
+    }
 
     return true;
 }
