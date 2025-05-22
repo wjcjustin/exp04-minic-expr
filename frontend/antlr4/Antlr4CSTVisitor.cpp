@@ -20,6 +20,7 @@
 #include <any>
 #include <cstdint>
 #include <string>
+#include <sys/types.h>
 #include <vector>
 
 #include "Antlr4CSTVisitor.h"
@@ -868,7 +869,13 @@ std::any MiniCCSTVisitor::visitFormalParamList(MiniCParser::FormalParamListConte
 /// @return AST的节点
 std::any MiniCCSTVisitor::visitFormalParam(MiniCParser::FormalParamContext * ctx)
 {
-    // formalParam: T_INT T_ID;
+    /*
+    formalParam:
+    basicType varDef (
+        T_L_SQUARE_BRACKTE T_DIGIT? T_R_SQUARE_BRACKTE (
+            T_L_SQUARE_BRACKTE T_DIGIT T_R_SQUARE_BRACKTE
+        )*
+    )?; */
     // 创建形参 AST 节点
     ast_node * formalPrarm = create_contain_node(ast_operator_type::AST_OP_FUNC_FORMAL_PARAM);
     // 新建形参的类型和名字
@@ -879,6 +886,24 @@ std::any MiniCCSTVisitor::visitFormalParam(MiniCParser::FormalParamContext * ctx
     // 将形参的类型和名字加入形参AST节点的孩子
     formalPrarm->insert_son_node(type_node);
     formalPrarm->insert_son_node(id_node);
+
+    // 如果是数组参数，则后面还有孩子
+    // 第一个孩子是是数组维度，如果维度大于1，则后面的孩子是从第二课维度开始的维度大小
+    uint32_t dimensionality = (uint32_t) ctx->T_L_SQUARE_BRACKTE().size();
+    if (dimensionality > 0) {
+        formalPrarm->insert_son_node(ast_node::New(digit_int_attr{dimensionality, -1}));
+        // offset 是寻找 T_DIGIT 的偏移量，如果第一个方括号中没有数字，则 T_DIGIT 少一个，要根据编号向前寻找一个
+        int offset = 0;
+        int digit_size = ctx->T_DIGIT().size();
+        if (digit_size != dimensionality) {
+            offset = -1;
+        }
+        for (int i = 1; i < dimensionality; i++) {
+            // 将后面的维度的 size 添加到节点中
+            uint32_t dim_size = (uint32_t) std::stoull(ctx->T_DIGIT()[i + offset]->getText());
+            formalPrarm->insert_son_node(ast_node::New(digit_int_attr{dim_size, -1}));
+        }
+    }
 
     return formalPrarm;
 }

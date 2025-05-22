@@ -142,6 +142,12 @@ public:
     virtual size_t getRuleIndex() const override;
     BasicTypeContext *basicType();
     VarDefContext *varDef();
+    std::vector<antlr4::tree::TerminalNode *> T_L_SQUARE_BRACKTE();
+    antlr4::tree::TerminalNode* T_L_SQUARE_BRACKTE(size_t i);
+    std::vector<antlr4::tree::TerminalNode *> T_R_SQUARE_BRACKTE();
+    antlr4::tree::TerminalNode* T_R_SQUARE_BRACKTE(size_t i);
+    std::vector<antlr4::tree::TerminalNode *> T_DIGIT();
+    antlr4::tree::TerminalNode* T_DIGIT(size_t i);
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;

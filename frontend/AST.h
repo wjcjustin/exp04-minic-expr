@@ -151,6 +151,9 @@ enum class ast_operator_type : int {
     /// @brief 数组声明
     AST_OP_ARR_DECL,
 
+    /// @brief 数组作为参数
+    AST_OP_FUNC_FORMAL_PARAM_ARRAY,
+
     /// @brief 最大标识符，表示非法运算符
     AST_OP_MAX,
 };

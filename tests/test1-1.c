@@ -1,6 +1,6 @@
-int defn(int a, int b)
+int defn(int a[8][5][6], int b[][99][88][77])
 {
-    return a + b + 4;
+    return a[1] + b + 4;
 }
 int garr[4][5];
 int garr2[7];

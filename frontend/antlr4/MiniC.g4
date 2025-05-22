@@ -21,7 +21,16 @@ funcDef:
 formalParamList: formalParam (T_COMMA formalParam)*;
 
 // 形参
-formalParam: basicType varDef;
+formalParam:
+	basicType varDef (
+		T_L_SQUARE_BRACKTE T_DIGIT? T_R_SQUARE_BRACKTE (
+			T_L_SQUARE_BRACKTE T_DIGIT T_R_SQUARE_BRACKTE
+		)*
+	)?;
+// TODO 函数形参怎么搞？ 1 创建节点时与普通形参区分 或者 2 数组参数节点多几个孩子，分别为数组维度、数组的各个维度的size（除了第一个）
+
+// // 函数作参数 arrAsParam 例如：a[][2][3], b[5][2][3] arrAsParam: basicType varDef T_L_SQUARE_BRACKTE
+// T_DIGIT? T_R_SQUARE_BRACKTE ( T_L_SQUARE_BRACKTE T_DIGIT T_R_SQUARE_BRACKTE )*;
 
 // 语句块看用作函数体，这里允许多个语句，并且不含任何语句
 block: T_L_BRACE blockItemList? T_R_BRACE;
