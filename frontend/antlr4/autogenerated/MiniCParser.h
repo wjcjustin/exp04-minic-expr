@@ -616,6 +616,7 @@ public:
   public:
     UnaryExpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    ArrDefContext *arrDef();
     PrimaryExpContext *primaryExp();
     antlr4::tree::TerminalNode *T_ID();
     antlr4::tree::TerminalNode *T_L_PAREN();
@@ -670,6 +671,7 @@ public:
     LValContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *T_ID();
+    ArrDefContext *arrDef();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;

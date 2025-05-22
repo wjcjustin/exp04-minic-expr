@@ -517,6 +517,9 @@ std::any MiniCCSTVisitor::visitUnaryExp(MiniCParser::UnaryExpContext * ctx)
 
         // 创建函数调用节点，其孩子为被调用函数名和实参，
         return create_func_call(funcname_node, paramListNode);
+    } else if (ctx->arrDef()) {
+        // 数组的引用
+        return visitArrDef(ctx->arrDef());
     } else {
         return nullptr;
     }
@@ -561,14 +564,17 @@ std::any MiniCCSTVisitor::visitPrimaryExp(MiniCParser::PrimaryExpContext * ctx)
 
 std::any MiniCCSTVisitor::visitLVal(MiniCParser::LValContext * ctx)
 {
-    // 识别文法产生式：lVal: T_ID;
-    // 获取ID的名字
-    auto varId = ctx->T_ID()->getText();
+    if (ctx->arrDef()) {
+        return visitArrDef(ctx->arrDef());
+    } else { // 识别文法产生式：lVal: T_ID;
+        // 获取ID的名字
+        auto varId = ctx->T_ID()->getText();
 
-    // 获取行号
-    int64_t lineNo = (int64_t) ctx->T_ID()->getSymbol()->getLine();
+        // 获取行号
+        int64_t lineNo = (int64_t) ctx->T_ID()->getSymbol()->getLine();
 
-    return ast_node::New(varId, lineNo);
+        return ast_node::New(varId, lineNo);
+    }
 }
 
 std::any MiniCCSTVisitor::visitVarDecl(MiniCParser::VarDeclContext * ctx)

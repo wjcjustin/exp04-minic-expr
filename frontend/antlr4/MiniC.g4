@@ -122,7 +122,8 @@ unaryOp: T_SUB | T_NOT;
 
 // 一元表达式 逻辑非和一元求负优先级相同，右结合
 unaryExp:
-	primaryExp
+	arrDef
+	| primaryExp
 	| T_ID T_L_PAREN realParamList? T_R_PAREN // 函数调用
 	| normalUnaryExp;
 
@@ -138,7 +139,7 @@ primaryExp:
 realParamList: expr (T_COMMA expr)*;
 
 // 左值表达式
-lVal: T_ID;
+lVal: T_ID | arrDef;
 
 // 用正规式来进行词法规则的描述
 
