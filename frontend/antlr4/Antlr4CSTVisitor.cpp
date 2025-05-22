@@ -464,12 +464,13 @@ std::any MiniCCSTVisitor::visitNormalUnaryExp(MiniCParser::NormalUnaryExpContext
     ast_operator_type op = std::any_cast<ast_operator_type>(visitUnaryOp(ctx->unaryOp()));
 
     // 将一元求负运算符的右部分提取出来
-    ast_node * right;
-    if (ctx->primaryExp()) {
-        right = std::any_cast<ast_node *>(visitPrimaryExp(ctx->primaryExp()));
-    } else {
-        right = std::any_cast<ast_node *>(visitNormalUnaryExp(ctx->normalUnaryExp()));
-    }
+    // ast_node * right;
+    // if (ctx->primaryExp()) {
+    //     right = std::any_cast<ast_node *>(visitPrimaryExp(ctx->primaryExp()));
+    // } else {
+    //     right = std::any_cast<ast_node *>(visitNormalUnaryExp(ctx->normalUnaryExp()));
+    // }
+    ast_node * right = std::any_cast<ast_node *>(visitUnaryExp(ctx->unaryExp()));
 
     // 创建一元求负节点
     auto unary_node = create_contain_node(op);

@@ -567,8 +567,7 @@ public:
     NormalUnaryExpContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     UnaryOpContext *unaryOp();
-    PrimaryExpContext *primaryExp();
-    NormalUnaryExpContext *normalUnaryExp();
+    UnaryExpContext *unaryExp();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;

@@ -112,7 +112,7 @@ relationalBinaryOp:
 logicBinaryOp: T_AND | T_OR;
 
 // 通用一元表达式
-normalUnaryExp: unaryOp (primaryExp | normalUnaryExp);
+normalUnaryExp: unaryOp unaryExp;
 
 // 一元运算符
 unaryOp: T_SUB | T_NOT;
