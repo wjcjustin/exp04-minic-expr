@@ -20,6 +20,7 @@
 #include <any>
 #include <cstdint>
 #include <string>
+#include <vector>
 
 #include "Antlr4CSTVisitor.h"
 #include "AST.h"
@@ -222,7 +223,7 @@ std::any MiniCCSTVisitor::visitExpr(MiniCParser::ExprContext * ctx)
 }
 
 /// @brief 非终结符 logicBinaryExp 的遍历
-std::any MiniCCSTVisitor::visitLogicBinaryExp(MiniCParser::LogicBinaryExpContext * ctx) // TODO
+std::any MiniCCSTVisitor::visitLogicBinaryExp(MiniCParser::LogicBinaryExpContext * ctx)
 {
     // logicBinaryExp:	logicAndExp (T_OR logicAndExp)*
     if (ctx->T_OR().empty()) {
@@ -248,7 +249,7 @@ std::any MiniCCSTVisitor::visitLogicBinaryExp(MiniCParser::LogicBinaryExpContext
     return left;
 }
 
-std::any MiniCCSTVisitor::visitLogicAndExp(MiniCParser::LogicAndExpContext * ctx) // TODO
+std::any MiniCCSTVisitor::visitLogicAndExp(MiniCParser::LogicAndExpContext * ctx)
 {
     // logicAndExp: relationalBinaryExp (T_AND relationalBinaryExp)*;
     if (ctx->T_AND().empty()) {
@@ -275,7 +276,7 @@ std::any MiniCCSTVisitor::visitLogicAndExp(MiniCParser::LogicAndExpContext * ctx
 }
 
 /// @brief 非终结符 logicBinaryExp 的遍历
-std::any MiniCCSTVisitor::visitRelationalBinaryExp(MiniCParser::RelationalBinaryExpContext * ctx) // TODO
+std::any MiniCCSTVisitor::visitRelationalBinaryExp(MiniCParser::RelationalBinaryExpContext * ctx)
 {
     // relationalBinaryExp: arithmeticExp(relationalBinaryOp arithmeticExp) *;
     if (ctx->relationalBinaryOp().empty()) {
@@ -304,7 +305,7 @@ std::any MiniCCSTVisitor::visitRelationalBinaryExp(MiniCParser::RelationalBinary
 
 /// @brief 非终结运算符LogicBinaryOp的遍历
 /// @param ctx CST上下文
-std::any MiniCCSTVisitor::visitRelationalBinaryOp(MiniCParser::RelationalBinaryOpContext * ctx) // TODO
+std::any MiniCCSTVisitor::visitRelationalBinaryOp(MiniCParser::RelationalBinaryOpContext * ctx)
 {
     // == != > < >= <=;
 
@@ -622,23 +623,55 @@ std::any MiniCCSTVisitor::visitVarDecl(MiniCParser::VarDeclContext * ctx)
     return stmt_node;
 }
 
-/// @brief 变量声明和定义节点的遍历
+/// @brief 变量/数组声明和定义节点的遍历
 std::any MiniCCSTVisitor::visitVarAndInit(MiniCParser::VarAndInitContext * ctx)
 {
+    // varAndInit: varDef ( T_ASSIGN expr)? | arrDef;
     // 创建变量声明和定义节点
     ast_node * var_and_init_node = create_contain_node(ast_operator_type::AST_OP_VAR_INIT);
-    // 添加 ID 节点
-    ast_node * id_node = std::any_cast<ast_node *>(visitVarDef(ctx->varDef()));
-    var_and_init_node->insert_son_node(id_node);
-    // 如果有初始化，则添加赋值语句节点
-    if (ctx->expr()) {
-        ast_node * lval_node = std::any_cast<ast_node *>(visitVarDef(ctx->varDef()));
-        ast_node * expr_node = std::any_cast<ast_node *>(visitExpr(ctx->expr()));
-        ast_node * init_node = ast_node::New(ast_operator_type::AST_OP_ASSIGN, lval_node, expr_node, nullptr);
-        var_and_init_node->insert_son_node(init_node);
+
+    if (ctx->arrDef()) { // 是数组声明
+        ast_node * arr_node = std::any_cast<ast_node *>(visitArrDef(ctx->arrDef()));
+        var_and_init_node->insert_son_node(arr_node);
+    } else { // 是变量声明和初始化
+        // 添加 ID 节点
+        ast_node * id_node = std::any_cast<ast_node *>(visitVarDef(ctx->varDef()));
+        var_and_init_node->insert_son_node(id_node);
+        // 如果有初始化，则添加赋值语句节点
+        if (ctx->expr()) {
+            ast_node * lval_node = std::any_cast<ast_node *>(visitVarDef(ctx->varDef()));
+            ast_node * expr_node = std::any_cast<ast_node *>(visitExpr(ctx->expr()));
+            ast_node * init_node = ast_node::New(ast_operator_type::AST_OP_ASSIGN, lval_node, expr_node, nullptr);
+            var_and_init_node->insert_son_node(init_node);
+        }
     }
 
     return var_and_init_node;
+}
+
+/// @brief 数组声明节点
+std::any MiniCCSTVisitor::visitArrDef(MiniCParser::ArrDefContext * ctx)
+{
+    // arrDef: T_ID (T_L_SQUARE_BRACKTE T_DIGIT T_R_SQUARE_BRACKTE)+;
+    ast_node * arr_def_node = create_contain_node(ast_operator_type::AST_OP_ARR_DECL);
+
+    // 数组名
+    std::string arrId = ctx->T_ID()->getText();
+    // 行号
+    int64_t lineNo = (int64_t) ctx->T_ID()->getSymbol()->getLine();
+
+    // 向数组声明节点插入ID孩子
+    arr_def_node->insert_son_node(ast_node::New(arrId, lineNo));
+
+    // 数组维度大小数组
+    auto dimensionality = ctx->T_DIGIT();
+    for (auto dim_node: dimensionality) {
+        // 对每一维，添加维度数字
+        uint32_t num = (uint32_t) std::stoull(dim_node->getText());
+        arr_def_node->insert_son_node(ast_node::New(digit_int_attr{num, -1}));
+    }
+
+    return arr_def_node;
 }
 
 std::any MiniCCSTVisitor::visitVarDef(MiniCParser::VarDefContext * ctx)

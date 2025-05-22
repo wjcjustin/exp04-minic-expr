@@ -13,24 +13,25 @@ class  MiniCParser : public antlr4::Parser {
 public:
   enum {
     T_L_PAREN = 1, T_R_PAREN = 2, T_SEMICOLON = 3, T_L_BRACE = 4, T_R_BRACE = 5, 
-    T_ASSIGN = 6, T_COMMA = 7, T_ADD = 8, T_SUB = 9, T_MUL = 10, T_DIV = 11, 
-    T_MOD = 12, T_AND = 13, T_OR = 14, T_NOT = 15, T_EQUAL = 16, T_NOT_EQUAL = 17, 
-    T_GREATER = 18, T_LESSER = 19, T_GREATER_EQUAL = 20, T_LESSER_EQUAL = 21, 
-    T_RETURN = 22, T_INT = 23, T_VOID = 24, T_IF = 25, T_ELSE = 26, T_WHILE = 27, 
-    T_BREAK = 28, T_CONTINUE = 29, T_ID = 30, T_DIGIT = 31, T_OCT_DIGIT = 32, 
-    T_HEX_DIGIT = 33, WS = 34, LINE_COMMENT = 35, BLOCK_COMMENT = 36
+    T_L_SQUARE_BRACKTE = 6, T_R_SQUARE_BRACKTE = 7, T_ASSIGN = 8, T_COMMA = 9, 
+    T_ADD = 10, T_SUB = 11, T_MUL = 12, T_DIV = 13, T_MOD = 14, T_AND = 15, 
+    T_OR = 16, T_NOT = 17, T_EQUAL = 18, T_NOT_EQUAL = 19, T_GREATER = 20, 
+    T_LESSER = 21, T_GREATER_EQUAL = 22, T_LESSER_EQUAL = 23, T_RETURN = 24, 
+    T_INT = 25, T_VOID = 26, T_IF = 27, T_ELSE = 28, T_WHILE = 29, T_BREAK = 30, 
+    T_CONTINUE = 31, T_ID = 32, T_DIGIT = 33, T_OCT_DIGIT = 34, T_HEX_DIGIT = 35, 
+    WS = 36, LINE_COMMENT = 37, BLOCK_COMMENT = 38
   };
 
   enum {
     RuleCompileUnit = 0, RuleFuncDef = 1, RuleFormalParamList = 2, RuleFormalParam = 3, 
     RuleBlock = 4, RuleBlockItemList = 5, RuleBlockItem = 6, RuleVarDecl = 7, 
-    RuleVarAndInit = 8, RuleBasicType = 9, RuleVarDef = 10, RuleStatement = 11, 
-    RuleIfelseExpr = 12, RuleCond = 13, RuleWhileExpr = 14, RuleExpr = 15, 
-    RuleArithmeticExp = 16, RuleRelationalBinaryExp = 17, RuleLogicBinaryExp = 18, 
-    RuleLogicAndExp = 19, RuleAddExp = 20, RuleMulExp = 21, RuleAddOp = 22, 
-    RuleMulOp = 23, RuleRelationalBinaryOp = 24, RuleLogicBinaryOp = 25, 
-    RuleNormalUnaryExp = 26, RuleUnaryOp = 27, RuleUnaryExp = 28, RulePrimaryExp = 29, 
-    RuleRealParamList = 30, RuleLVal = 31
+    RuleVarAndInit = 8, RuleBasicType = 9, RuleVarDef = 10, RuleArrDef = 11, 
+    RuleStatement = 12, RuleIfelseExpr = 13, RuleCond = 14, RuleWhileExpr = 15, 
+    RuleExpr = 16, RuleArithmeticExp = 17, RuleRelationalBinaryExp = 18, 
+    RuleLogicBinaryExp = 19, RuleLogicAndExp = 20, RuleAddExp = 21, RuleMulExp = 22, 
+    RuleAddOp = 23, RuleMulOp = 24, RuleRelationalBinaryOp = 25, RuleLogicBinaryOp = 26, 
+    RuleNormalUnaryExp = 27, RuleUnaryOp = 28, RuleUnaryExp = 29, RulePrimaryExp = 30, 
+    RuleRealParamList = 31, RuleLVal = 32
   };
 
   explicit MiniCParser(antlr4::TokenStream *input);
@@ -61,6 +62,7 @@ public:
   class VarAndInitContext;
   class BasicTypeContext;
   class VarDefContext;
+  class ArrDefContext;
   class StatementContext;
   class IfelseExprContext;
   class CondContext;
@@ -216,6 +218,7 @@ public:
     VarDefContext *varDef();
     antlr4::tree::TerminalNode *T_ASSIGN();
     ExprContext *expr();
+    ArrDefContext *arrDef();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -250,6 +253,25 @@ public:
   };
 
   VarDefContext* varDef();
+
+  class  ArrDefContext : public antlr4::ParserRuleContext {
+  public:
+    ArrDefContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *T_ID();
+    std::vector<antlr4::tree::TerminalNode *> T_L_SQUARE_BRACKTE();
+    antlr4::tree::TerminalNode* T_L_SQUARE_BRACKTE(size_t i);
+    std::vector<antlr4::tree::TerminalNode *> T_DIGIT();
+    antlr4::tree::TerminalNode* T_DIGIT(size_t i);
+    std::vector<antlr4::tree::TerminalNode *> T_R_SQUARE_BRACKTE();
+    antlr4::tree::TerminalNode* T_R_SQUARE_BRACKTE(size_t i);
+
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  ArrDefContext* arrDef();
 
   class  StatementContext : public antlr4::ParserRuleContext {
   public:

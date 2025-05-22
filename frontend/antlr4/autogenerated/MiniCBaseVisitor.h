@@ -59,6 +59,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitArrDef(MiniCParser::ArrDefContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitReturnStatement(MiniCParser::ReturnStatementContext *ctx) override {
     return visitChildren(ctx);
   }

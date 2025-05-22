@@ -281,4 +281,11 @@ protected:
     /// @return std::any AST的节点
     ///
     std::any visitVarAndInit(MiniCParser::VarAndInitContext * ctx) override;
+
+    ///
+    /// @brief 非终结符ArrDef的分析
+    /// @param ctx CST上下文
+    /// @return std::any AST的节点
+    ///
+    std::any visitArrDef(MiniCParser::ArrDefContext * ctx) override;
 };

@@ -36,14 +36,17 @@ blockItem: statement | varDecl;
 // 变量声明
 varDecl: basicType varAndInit (T_COMMA varAndInit)* T_SEMICOLON;
 
-// 添加声明的同时初始化
-varAndInit: varDef ( T_ASSIGN expr)?;
+// 添加声明的同时初始化, 添加数组声明
+varAndInit: varDef ( T_ASSIGN expr)? | arrDef;
 
 // 基本类型
 basicType: T_INT | T_VOID;
 
 // 变量定义
 varDef: T_ID;
+
+// 数组定义
+arrDef: T_ID (T_L_SQUARE_BRACKTE T_DIGIT T_R_SQUARE_BRACKTE)+;
 
 // 目前语句支持return和赋值语句
 statement:
@@ -144,6 +147,8 @@ T_R_PAREN: ')';
 T_SEMICOLON: ';';
 T_L_BRACE: '{';
 T_R_BRACE: '}';
+T_L_SQUARE_BRACKTE: '[';
+T_R_SQUARE_BRACKTE: ']';
 
 T_ASSIGN: '=';
 T_COMMA: ',';

@@ -1,13 +1,14 @@
-int faaa()
+int defn()
 {
-    return 10;
+    return 4;
 }
 
 int main()
 {
-    int a = 1;
-    if (!!faaa() && 1 != 2) {
-        a = 2;
-    }
+    int a, b[10][4][2], c = 1;
+    a = 2;
+
+    a = defn();
+
     return a;
 }
