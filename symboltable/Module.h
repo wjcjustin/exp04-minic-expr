@@ -15,10 +15,12 @@
 ///
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <unordered_map>
 
+#include "AST.h"
 #include "ConstInt.h"
 #include "Type.h"
 #include "GlobalVariable.h"
@@ -115,7 +117,11 @@ public:
     /// ! 该函数只有在AST遍历生成线性IR中使用，其它地方不能使用
     /// @param name 变量ID
     /// @param type 变量类型
-    Value * newVarValue(Type * type, std::string name = "");
+    /// @param dimension 数组的维度，0代表不是数组
+    Value * newVarValue(Type * type,
+                        std::string name = "",
+                        int32_t dimension = 0,
+                        std::vector<int32_t> _dimensions = std::vector<int32_t>{});
 
     /// @brief 查找变量（全局变量或局部变量），会根据作用域栈进行逐级查找。
     /// ! 该函数只有在AST遍历生成线性IR中使用，其它地方不能使用

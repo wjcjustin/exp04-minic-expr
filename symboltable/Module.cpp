@@ -15,9 +15,11 @@
 ///
 #include "Module.h"
 
+#include "IntegerType.h"
 #include "ScopeStack.h"
 #include "Common.h"
 #include "VoidType.h"
+#include <string>
 
 Module::Module(std::string _name) : name(_name)
 {
@@ -180,7 +182,7 @@ ConstInt * Module::findConstInt(int32_t val)
 /// @param type 变量类型
 /// @param name 变量ID 局部变量时可以为空，目的为了SSA时创建临时的局部变量，
 /// @return nullptr则说明变量已存在，否则为新建的变量
-Value * Module::newVarValue(Type * type, std::string name)
+Value * Module::newVarValue(Type * type, std::string name, int32_t dimension, std::vector<int32_t> dimensions)
 {
     Value * retVal;
     std::string varName;
@@ -210,9 +212,10 @@ Value * Module::newVarValue(Type * type, std::string name)
             scope_level = scopeStack->getCurrentScopeLevel();
         }
 
-        retVal = currentFunc->newLocalVarValue(type, name, scope_level);
+        retVal = currentFunc->newLocalVarValue(type, name, scope_level, dimension, dimensions);
 
     } else {
+        // TODO 全局数组
         retVal = newGlobalVariable(type, name);
     }
 

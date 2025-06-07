@@ -895,7 +895,24 @@ bool IRGenerator::ir_variable_declare(ast_node * node)
     // 可能有第二个孩子，是变量初始化，转为赋值语句
 
     // TODO 这里可强化类型等检查
-
+    if (node->sons[1]->node_type == ast_operator_type::AST_OP_ARR_DECL) {
+        // 如果是数组定义
+        ast_node * arr_def_node = node->sons[1];
+        std::string arrName = arr_def_node->sons[0]->name;
+        // int arrDimension = (int) arr_def_node->sons.size() - 1;
+        // 连同维度添加到局部变量，表示这是个数组
+        std::vector<int32_t> dimensions;
+        for (auto node: arr_def_node->sons) {
+            if (node->node_type == ast_operator_type::AST_OP_LEAF_VAR_ID) {
+                continue;
+            }
+            int size = node->integer_val;
+            dimensions.push_back(size);
+        }
+        node->val = module->newVarValue(node->sons[0]->type, arrName, dimensions.size(), dimensions);
+        return true;
+    }
+    // 不是数组定义，是普通变量定义
     node->val = module->newVarValue(node->sons[0]->type, node->sons[1]->name);
     // 如果有初始化
     if (node->sons.size() > 2) {

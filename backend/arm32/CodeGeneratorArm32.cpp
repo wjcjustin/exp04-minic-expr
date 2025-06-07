@@ -383,6 +383,11 @@ void CodeGeneratorArm32::stackAlloc(Function * func)
     // 遍历函数变量列表
     // 为函数内临时变量分配栈空间
     for (auto var: func->getVarValues()) {
+        if (var->getDimension()) {
+            // 如果是数组，则不分配栈空间，使用临时变量
+            //???
+            continue;
+        }
 
         // 对于简单类型的寄存器分配策略，假定临时变量和局部变量都保存在栈中，属于内存
         // 而对于图着色等，临时变量一般是寄存器，局部变量也可能修改为寄存器

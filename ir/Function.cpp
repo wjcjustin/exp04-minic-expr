@@ -14,6 +14,7 @@
 /// </table>
 ///
 
+#include <cstdint>
 #include <cstdlib>
 #include <string>
 
@@ -237,10 +238,14 @@ void Function::setExistFuncCall(bool exist)
 /// @param name 变量ID
 /// @param type 变量类型
 /// @param scope_level 局部变量的作用域层级
-LocalVariable * Function::newLocalVarValue(Type * type, std::string name, int32_t scope_level)
+LocalVariable * Function::newLocalVarValue(Type * type,
+                                           std::string name,
+                                           int32_t scope_level,
+                                           int32_t dimension,
+                                           std::vector<int32_t> dimensions)
 {
     // 创建变量并加入符号表
-    LocalVariable * varValue = new LocalVariable(type, name, scope_level);
+    LocalVariable * varValue = new LocalVariable(type, name, scope_level, dimension, dimensions);
 
     // varsVector表中可能存在变量重名的信息
     varsVector.push_back(varValue);
@@ -294,8 +299,19 @@ void Function::renameIR()
 
     // 局部变量重命名
     for (auto & var: this->varsVector) {
-
-        var->setIRName(IR_LOCAL_VARNAME_PREFIX + std::to_string(nameIndex++));
+        std::string arrSuffix = "";
+        // 先判断是否 var is arrVal, 是则添加中括号
+        int32_t dimension = var->getDimension();
+        if (dimension > 0) {
+            auto dimensions = var->getDimensions();
+            for (auto size: dimensions) {
+                arrSuffix += "[";
+                arrSuffix += std::to_string(size);
+                arrSuffix += "]";
+            }
+        }
+        // TODO
+        var->setIRName(IR_LOCAL_VARNAME_PREFIX + std::to_string(nameIndex++) + arrSuffix);
     }
 
     // 遍历所有的指令进行命名

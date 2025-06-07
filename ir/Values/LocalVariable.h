@@ -18,6 +18,8 @@
 
 #include "Value.h"
 #include "IRConstant.h"
+#include <cstdint>
+#include <vector>
 
 ///
 /// @brief 局部变量的Value
@@ -33,8 +35,12 @@ private:
     /// @param _name 名称
     /// @param _scope_level 作用域层级
     ///
-    explicit LocalVariable(Type * _type, std::string _name, int32_t _scope_level)
-        : Value(_type), scope_level(_scope_level)
+    explicit LocalVariable(Type * _type,
+                           std::string _name,
+                           int32_t _scope_level,
+                           int32_t _dimension = 0,
+                           std::vector<int32_t> _dimensions = std::vector<int32_t>{})
+        : Value(_type), scope_level(_scope_level), dimension(_dimension), dimensions(_dimensions)
     {
         this->name = _name;
     }
@@ -56,6 +62,18 @@ public:
     int32_t getRegId() override
     {
         return regId;
+    }
+
+    /// @brief 获得数组的维度, 返回0则不是数组
+    int32_t getDimension()
+    {
+        return dimension;
+    }
+
+    /// @brief 获得数组各维度大小
+    std::vector<int32_t> getDimensions()
+    {
+        return dimensions;
     }
 
     ///
@@ -132,4 +150,10 @@ private:
     /// @brief 变量加载到寄存器中时对应的寄存器编号
     ///
     int32_t loadRegNo = -1;
+
+    /// @brief 数组的维度
+    int32_t dimension = 0;
+
+    /// @brief 数组各维度的大小
+    std::vector<int32_t> dimensions;
 };
