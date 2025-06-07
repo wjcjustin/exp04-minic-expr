@@ -18,6 +18,7 @@ case "$1" in
         # 生成中间表示IR[2,8](@ref)
         ./build/minic -S -A -o "${base_name}.ir" -I "$input_file"
         echo " @IR 生成完成"
+        cat "${base_name}.ir"
         ;;
     -R|-r)
         # 编译、执行并输出返回值[3,7](@ref)
